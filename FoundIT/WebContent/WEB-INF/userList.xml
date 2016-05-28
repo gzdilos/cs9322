@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <userList>
-<username>Ken</username>
-<password>hasaki</password>
+<user>
+	<username>Ken</username>
+	<password>hasaki</password>
+	<userType>Candidate</userType>
+	<id>2</id>
+</user>
 </userList>

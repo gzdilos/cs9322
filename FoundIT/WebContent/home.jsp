@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<%@ include file="header.html" %>
+<%@ include file="/WEB-INF/jsps/header.html" %>
 </head>
 <body>
 		<form role="form" action="search" method="get"> 

@@ -5,7 +5,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class UserHandler {
+public class UserParser {
 	public void parse(Document doc,Vector<User> userList){
 		NodeList userNodes = doc.getElementsByTagName("userList");
 		System.out.println(userNodes.getLength());
@@ -20,6 +20,14 @@ public class UserHandler {
 				}
 				if(e.getNodeName().equalsIgnoreCase("password")){
 					u.setPassword(e.getTextContent());
+				}
+				if(e.getNodeName().equalsIgnoreCase("userType")){
+					u.setUserType(e.getTextContent());
+				}
+				if(e.getNodeName().equalsIgnoreCase("id")){
+					if(!e.getTextContent().equals("")){
+						u.setId(e.getTextContent());
+					}
 				}
 			}
 			userList.addElement(u);

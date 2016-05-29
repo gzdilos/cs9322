@@ -4,10 +4,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-@XmlRootElement(name="JobPostings")
+@XmlRootElement(name="jobPostings")
 public class JobPostings extends Vector{
 	
-	@XmlElement(name="JobPosting")
+	@XmlElement(name="jobPosting")
 	private Vector<JobPosting> JobPosting;
 	
 	@XmlTransient

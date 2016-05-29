@@ -47,8 +47,8 @@ public class SearchServlet extends HttpServlet {
 				connection.setRequestMethod("GET");
 				connection.setRequestProperty("Accept", "application/xml");					
 			
-				//try {
-					/**
+				try {
+					
 					JAXBContext jc;
 					jc = JAXBContext.newInstance(JobPostings.class);
 					InputStream xml = connection.getInputStream();		
@@ -56,20 +56,21 @@ public class SearchServlet extends HttpServlet {
 					JobPostings jp = 
 					    (JobPostings) jc.createUnmarshaller().unmarshal(xml);
 					resultList.addAll(jp.getJobPosting());
+					System.out.println(resultList.size());
 					request.setAttribute("results", resultList);
 					connection.disconnect();
-					**/
+					
 					r = request.getRequestDispatcher("/WEB-INF/jsps/results.jsp");
 					r.forward(request, response);
 					return;
 					
-				/**
+				
 				} catch (JAXBException e) {
 					// TODO Auto-generated catch block
 					System.out.println(e.toString());
 					connection.disconnect();
 				}
-				**/
+				
 		}
 		r.forward(request, response);
 		return;

@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="user")
@@ -7,6 +8,14 @@ public class User implements Serializable{
 	String password;
 	String userType;
 	String id;
+	Vector<String> savedJobs = new Vector<String>();
+	
+	public Vector<String> getSavedJobs() {
+		return savedJobs;
+	}
+	public void setSavedJobs(Vector<String> savedJobs) {
+		this.savedJobs = savedJobs;
+	}
 	
 	public String getUserType() {
 		return userType;
@@ -32,7 +41,9 @@ public class User implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+	public void saveJob(String jobId){
+		savedJobs.add(jobId);
+	}
 	
 	@Override
 	public boolean equals(Object obj) {

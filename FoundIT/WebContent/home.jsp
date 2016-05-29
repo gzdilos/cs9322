@@ -11,7 +11,7 @@
   			<div class="form-group col-md-4 col-md-offset-4">
 	            <div class="form-group has-feedback">
 	                <label class="control-label" for="search_keyword">Job Keyword(s)</label>
-	                <input type="text" class="form-control" id="search_keyword" placeholder="Enter Keyword(s)"/>
+	                <input type="text" name="search_keyword" class="form-control" id="search_keyword" placeholder="Enter Keyword(s)" value=""/>
 	                <span class="glyphicon glyphicon-search form-control-feedback"></span>
 	            </div>
         	</div>

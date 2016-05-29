@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+	Vector<User> userList = new userList();
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -56,25 +56,10 @@ public class LoginServlet extends HttpServlet {
 		File xmlFile = new File(xmlPath);
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
-		RequestDispatcher r = request.getRequestDispatcher("");
-		userList userList = new userList();
+		RequestDispatcher r = request.getRequestDispatcher("");		
 		if(userList.isEmpty()){
-			try {
-				JAXBContext jc;
-				jc = JAXBContext.newInstance(userList.class);
-				File xml = new File(xmlPath);	
-				
-				 userList newList = 
-				    (userList) jc.createUnmarshaller().unmarshal(xml);
-				//builder = builderFactory.newDocumentBuilder();
-				 if(newList.getUserList()!=null){
-					 userList.addAll(newList.getUserList());
-				 }
-				//Document doc = builder.parse(xmlFile);
-				//u.parse(doc, userList);			
-			} catch (JAXBException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(getUserList() != null){
+				userList = getUserList();
 			}
 		}
 		if(request.getParameterMap().containsKey("register")){
@@ -125,6 +110,7 @@ public class LoginServlet extends HttpServlet {
 						os.write(("").getBytes());
 						JAXBContext jc;
 						try {
+							
 							jc = JAXBContext.newInstance(UserProfile.class);
 							InputStream xml = connection.getInputStream();		
 							
@@ -133,12 +119,7 @@ public class LoginServlet extends HttpServlet {
 							connection.disconnect();
 							newUser.setId(profile.getId());
 							userList.add(newUser);
-							jc = JAXBContext.newInstance(userList.class);
-							Marshaller m = jc.createMarshaller();
-							m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-							userList saveList = new userList();
-							saveList.setUserList(userList);
-							m.marshal(saveList, xmlFile);
+							updateUserList(userList);
 							mySession.setAttribute("loggedIn", true);
 							mySession.setAttribute("user", newUser);
 							mySession.setAttribute("profile", profile);
@@ -149,6 +130,14 @@ public class LoginServlet extends HttpServlet {
 							System.out.println(e.toString());
 						}
 
+				}else if(action.equals("saveJob")){
+					System.out.println("Hello");
+					System.out.println(request.getParameter("jobid"));
+					User thisUser =(User) mySession.getAttribute("user");
+					thisUser.saveJob(request.getParameter("jobid"));
+					int index = userList.indexOf(thisUser);
+					userList.set(index, thisUser);
+					updateUserList(userList);
 				}
 		}
 		
@@ -165,5 +154,44 @@ public class LoginServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
-
+	public Vector<User> getUserList(){
+		ServletContext context = getServletContext();
+		String xmlPath = context.getRealPath("/WEB-INF/userList.xml");
+		File xmlFile = new File(xmlPath);
+		try {
+			JAXBContext jc;
+			jc = JAXBContext.newInstance(userList.class);
+			File xml = new File(xmlPath);	
+			
+			 userList newList = 
+			    (userList) jc.createUnmarshaller().unmarshal(xml);
+			//builder = builderFactory.newDocumentBuilder();
+			 return newList.getUserList();
+			//Document doc = builder.parse(xmlFile);
+			//u.parse(doc, userList);			
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public void updateUserList(Vector<User> userList){
+		JAXBContext jc;
+		try{
+		ServletContext context = getServletContext();
+		String xmlPath = context.getRealPath("/WEB-INF/userList.xml");
+		File xmlFile = new File(xmlPath);
+		
+		jc = JAXBContext.newInstance(userList.class);
+		Marshaller m = jc.createMarshaller();
+		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		userList saveList = new userList();
+		saveList.setUserList(userList);
+		m.marshal(saveList, xmlFile);
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

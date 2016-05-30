@@ -1,13 +1,12 @@
 
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Vector;
@@ -28,15 +27,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-
-
-
-
-
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -67,218 +58,234 @@ public class LoginServlet extends HttpServlet {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
 		RequestDispatcher r = request.getRequestDispatcher("");		
-		if(userList.isEmpty()){
-			if(getUserList() != null){
-				userList = getUserList();
-			}
-		}
-		if(request.getParameterMap().containsKey("register")){
-			RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsps/register.jsp");
-			rd.forward(request, response);
-			return;
-		}
-		if(request.getParameterMap().containsKey("action")){
-			String action = request.getParameter("action");
-				if(action.equals("logout")){
-					mySession.invalidate();
-					response.sendRedirect("home.jsp");
-					return;
-				}else if(action.equals("login")){
-					User newLogin = new User();
-					newLogin.setUsername(request.getParameter("login_username"));
-					newLogin.setPassword(request.getParameter("login_password"));
-					if(userList.contains(newLogin)){
-						//Check if user is reviewer
-						System.out.println(userList.size());
-						System.out.println(userList.indexOf(newLogin));
-						User thisUser = (User) userList.get(userList.indexOf(newLogin));
-						
-						if(thisUser.userType.contentEquals("Reviewer")) {
-							
-							//String id = getReviewerID(thisUser.username, thisUser.password);
-							
-							//if (id == null) {
-								//response.sendRedirect("home.jsp");
-								//return;
-							//} else {
-							//thisUser.setId(userList);
-							//mySession.setAttribute("loggedIn", true);
-							//mySession.setAttribute("user", thisUser);
-							//}
-							//thisUser.setId(userList.indexOf(newLogin));
-						}
-						System.out.println("Login Success");
-						mySession.setAttribute("loggedIn", true);
-						mySession.setAttribute("user", thisUser);
+			if(userList.isEmpty()){
+				if(getUserList() != null){
+					userList = getUserList();
+				}
+			}		
+			if(request.getParameterMap().containsKey("action")){
+				String action = request.getParameter("action");
+					if(action.equals("logout")){
+						mySession.invalidate();
 						response.sendRedirect("home.jsp");
 						return;
-					} else{
-						//System.out.println("Checking if user is reviewer");
-						/*
-						//Check if user is reviewer
-						String id = getReviewerID(newLogin.username, newLogin.password);
-						
-						if (id == null) {
-							response.sendRedirect("home.jsp");
+					}else if(action.equals("login")){
+						User newLogin = new User();
+						newLogin.setUsername(request.getParameter("login_username"));
+						newLogin.setPassword(request.getParameter("login_password"));
+						if(userList.contains(newLogin)){
+							System.out.println(userList.size());
+							System.out.println(userList.indexOf(newLogin));
+							User thisUser = (User) userList.get(userList.indexOf(newLogin));
+							System.out.println(thisUser.getId()+"  "+thisUser.getUserType());
+							System.out.println("Login Success");
+							mySession.setAttribute("loggedIn", true);
+							mySession.setAttribute("user", thisUser);
+							if(thisUser.getUserType().equals("candidate")){
+								RequestDispatcher rd = request.getRequestDispatcher("/search");
+								rd.forward(request, response);
+								return;
+							}else if(thisUser.getUserType().equals("manager")){
+								RequestDispatcher rd = request.getRequestDispatcher("/manager");
+								rd.forward(request, response);
+								return;
+							}else if(thisUser.getUserType().equals("reviewer")){
+								RequestDispatcher rd = request.getRequestDispatcher("/review");
+								rd.forward(request, response);
+								return;
+							}else{
+								RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
+								rd.forward(request, response);
+								return;
+							}
+						} else if(action.equals("addReviewer")){
+							User user = (User) mySession.getAttribute("user");
+							String query="/";
+							String uri = "/teammemberprofile";
+							String username = request.getParameter("username");
+							String password = request.getParameter("password");
+							String professionalskills = request.getParameter("professionalskills");
+							query += "username="+username;
+							query += "&password="+password;
+							query += "&professionalskills="+professionalskills;
+							User newUser = new User();
+							RestServices rs = new RestServices();
+							HttpURLConnection connection = rs.doPost(query, uri,user.getUserType() );							
+							//read the response
+							if(connection.getResponseCode() == 200){
+								try {
+									JAXBContext jc;								
+									InputStream xml = connection.getInputStream();		
+										jc = JAXBContext.newInstance(TeamMemberProfile.class);
+										System.out.println("reading xml response for user");
+										TeamMemberProfile profile = 
+										    (TeamMemberProfile) jc.createUnmarshaller().unmarshal(xml);
+										connection.disconnect();
+										newUser.setId(profile.getId());
+										newUser.setPassword(password);
+										newUser.setUsername(username);
+										newUser.setUserType("reviewer");
+										userList.add(newUser);
+										updateUserList(userList);
+										r = request.getRequestDispatcher("/manager?team");
+										r.forward(request,response);
+										return;
+								}catch (JAXBException e) {
+									
+								}
+							}else{
+								System.out.println("Failed creating new team member");
+							}
+							
+						}else{
+							RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
+							rd.forward(request, response);
+							return;
+						}
+					}else if(action.equals("preregister")){
+						String userType;	
+						System.out.println("prereg");
+						if(request.getParameterMap().containsKey("registerEmployee")){
+							userType = "candidate";
+							UserProfile p = new UserProfile();
+							request.setAttribute("profile", p);
+							request.setAttribute("userType", userType);
+							request.setAttribute("email", request.getParameter("email"));
+							request.setAttribute("password", request.getParameter("password"));
+							r = request.getRequestDispatcher("/WEB-INF/jsps/profile.jsp");
+							r.forward(request,response);
+							return;
+						}else if (request.getParameterMap().containsKey("registerEmployer")){
+							userType = "manager";
+							CompanyProfile p = new CompanyProfile();
+							request.setAttribute("profile", p);
+							request.setAttribute("userType", userType);
+							request.setAttribute("email", request.getParameter("email"));
+							request.setAttribute("password", request.getParameter("password"));
+							r = request.getRequestDispatcher("/WEB-INF/jsps/profile.jsp");
+							r.forward(request,response);
 							return;
 						} else {
-							newLogin.setId(id);
-							mySession.setAttribute("loggedIn", true);
-							mySession.setAttribute("user", newLogin);
-						}
-						newLogin.setUserType("Reviewer");
-						System.out.println("Login Success");
-						mySession.setAttribute("loggedIn", true);
-						mySession.setAttribute("user", newLogin);
-						response.sendRedirect("home.jsp");
-						return;*/
-						System.out.println("User not found");
-					}
-				}else if(action.equals("register")){
-					System.out.println("Registering");
-					FileWriter fw = new FileWriter(xmlPath);
-					User newUser = new User();
-					
-					newUser.setUsername(request.getParameter("email"));
-					newUser.setPassword(request.getParameter("password"));
-					String uri = 
-						    "http://localhost:8080/FoundITServer/userprofile/";
-						URL url = new URL(uri);
-						HttpURLConnection connection = 
-						    (HttpURLConnection) url.openConnection();
-						connection.setRequestMethod("POST");
-						connection.setDoOutput(true);
-						connection.setDoInput(true);
-						connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");	
-						connection.setRequestProperty("Accept", "application/xml");		
-						OutputStream os = connection.getOutputStream();
-						os.write(("").getBytes());
-						JAXBContext jc;
-						try {
+							RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
+							rd.forward(request, response);
 							
-							jc = JAXBContext.newInstance(UserProfile.class);
-							InputStream xml = connection.getInputStream();		
-							
-							UserProfile profile = 
-							    (UserProfile) jc.createUnmarshaller().unmarshal(xml);
-							connection.disconnect();
-							newUser.setId(profile.getId());
-							userList.add(newUser);
-							updateUserList(userList);
-							mySession.setAttribute("loggedIn", true);
-							mySession.setAttribute("user", newUser);
-							mySession.setAttribute("profile", profile);
-							response.sendRedirect("profile");
 							return;
-						} catch (JAXBException e) {
-							// TODO Auto-generated catch block
-							System.out.println(e.toString());
 						}
-
-				}else if(action.equals("saveJob")){
-					System.out.println("Hello");
-					System.out.println(request.getParameter("jobid"));
-					User thisUser =(User) mySession.getAttribute("user");
-					thisUser.saveJob(request.getParameter("jobid"));
-					int index = userList.indexOf(thisUser);
-					userList.set(index, thisUser);
-					updateUserList(userList);
-				}
-		}
-		
-
-
-		return;
-
-	}
-
-	//Need to call the server to check reviewer id
-	private String getReviewerID(String username, String password) {
-		System.out.println("Checking server with " + username + " " + password);
-		String uri = "http://localhost:8080/FoundITServer/teammemberprofile?username="+ username+"&password=" + password + "&professionalskills=s";
-		URL url;
-		HttpURLConnection connection;
-		try {
-			url = new URL(uri);
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setDoOutput(true);
-			connection.setDoInput(true);
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");	
-			connection.setRequestProperty("Accept", "application/xml");		
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("SecurityKey", "i-am-foundit");
-			connection.setRequestProperty("ShortKey", "app-reviewer");
-			
-			//BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			return parseReviewXML(connection.getInputStream());
-			
-		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
-		return null;
-	}
-
-	/*
-	 * 
-	 * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-		<teamMemberProfile href="http://localhost:8080/FoundITServer/teammemberprofile/6" rel="teammemberprofile">
-		    <id>6</id>
-		    <password>review1</password>
-		    <professionalSkills>s</professionalSkills>
-		    <username>review1</username>
-		</teamMemberProfile>
-	 */
-	private String parseReviewXML(InputStream inputStream) {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = null;
-		try {
-			dBuilder = factory.newDocumentBuilder();
-		} catch (ParserConfigurationException e1) {
-			e1.printStackTrace();
-		}
-		try {
-			File filetemp = new File("review.xml");
-			Document doc;
-			
-			if (inputStream == null) {
-				doc = dBuilder.parse(filetemp);
-			} else {
-				doc = dBuilder.parse(inputStream);
+						
+					}else if(action.equals("register")){	
+						System.out.println("register");
+						String registerUrl = null;
+						String userType = request.getParameter("userType");					
+						if(userType.equals("candidate")){
+							registerUrl = "/userprofile";
+						}else if (userType.equals("manager")){
+							registerUrl = "/companyprofile";
+						} else {
+						}	
+						
+						CompanyProfile company = new CompanyProfile();
+						UserProfile userProfile = new UserProfile();
+						String query="/";
+						
+						if(userType.equals("manager")){
+						    query += "name="+ request.getParameter("name");
+						    query += "&address="+request.getParameter("address");
+						    query += "&industrytype="+request.getParameter("industrytype");
+						    query += "&description="+request.getParameter("description");
+						    query += "&website="+request.getParameter("website");
+						}else if(userType.equals("candidate")){
+							query = "name="+ request.getParameter("name");
+							query += "&currentposition="+ request.getParameter("currentPosition");
+						    query += "&education="+request.getParameter("education");
+						    query += "&pastexperience="+request.getParameter("pastExperience");
+						    query += "&professionalskills="+request.getParameter("professionalSkills");
+						    
+						}
+						
+						User newUser = new User();					
+						newUser.setUsername(request.getParameter("email"));
+						newUser.setPassword(request.getParameter("password"));
+						newUser.setUserType(userType);
+						RestServices rs = new RestServices();
+						String uri = registerUrl;
+						HttpURLConnection connection = rs.doPost(query, uri, userType);
+							
+							//read the response
+							try {
+								JAXBContext jc;								
+								InputStream xml = connection.getInputStream();		
+								if(userType.equals("candidate")){
+									jc = JAXBContext.newInstance(UserProfile.class);
+									System.out.println("reading xml response for user");
+									UserProfile profile = 
+									    (UserProfile) jc.createUnmarshaller().unmarshal(xml);
+									connection.disconnect();
+									newUser.setId(profile.getId());
+									mySession.setAttribute("profile", profile);
+								}else if(userType.equals("manager")){
+									jc = JAXBContext.newInstance(CompanyProfile.class);
+									System.out.println("reading xml response for company");
+									CompanyProfile profile = 
+										    (CompanyProfile) jc.createUnmarshaller().unmarshal(xml);
+									connection.disconnect();
+									newUser.setId(profile.getId());
+									mySession.setAttribute("profile", profile);
+								}		
+								System.out.println("Finished reading response xml");
+								userList.add(newUser);
+								updateUserList(userList);
+								mySession.setAttribute("loggedIn", true);
+								mySession.setAttribute("user", newUser);
+								if(newUser.getUserType().equals("candidate")){
+									RequestDispatcher rd = request.getRequestDispatcher("/search");
+									rd.forward(request, response);
+									return;
+								}else if(newUser.getUserType().equals("manager")){
+									RequestDispatcher rd = request.getRequestDispatcher("/manager");
+									rd.forward(request, response);
+									return;
+								}else if(newUser.getUserType().equals("reviewer")){
+									RequestDispatcher rd = request.getRequestDispatcher("/review");
+									rd.forward(request, response);
+									return;
+								}else{
+									RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
+									rd.forward(request, response);
+									return;
+								}
+							} catch (JAXBException e) {
+								// TODO Auto-generated catch block
+								System.out.println(e.toString());
+							}
+	
+					}else if(action.equals("saveJob")){
+						System.out.println(request.getParameter("jobid"));
+						User thisUser =(User) mySession.getAttribute("user");
+						thisUser.saveJob(request.getParameter("jobid"));
+						int index = userList.indexOf(thisUser);
+						userList.set(index, thisUser);
+						updateUserList(userList);
+					}else if(action.equals("removeJob")){
+						System.out.println(request.getParameter("jobid"));
+						User thisUser =(User) mySession.getAttribute("user");
+						thisUser.removeJob(request.getParameter("jobid"));
+						int index = userList.indexOf(thisUser);
+						userList.set(index, thisUser);
+						updateUserList(userList);
+					}
+			}
+			if(request.getParameterMap().containsKey("register")){
+				RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsps/register.jsp");
+				rd.forward(request, response);
+				return;
 			}
 			
-			doc.getDocumentElement().normalize();
+			RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
+			rd.forward(request, response);
+			return;
 			
-			NodeList nList = doc.getElementsByTagName("teamMemberProfile");
-	        
-	        for (int temp = 0; temp < nList.getLength(); temp++) {
-	        	Node nNode = nList.item(temp);
-	            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-	            	
-	            	Element eElement = (Element) nNode;
-	            	
-	            	System.out.println(eElement.getElementsByTagName("id").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("password").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("professionalSkills").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("username").item(0).getTextContent());
-	            	
-	            	return eElement.getElementsByTagName("id").item(0).getTextContent();
-	            }
-	         }
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+		} 
+		
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)

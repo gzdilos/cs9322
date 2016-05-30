@@ -1,21 +1,22 @@
 import java.util.Vector;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
-@XmlRootElement(name="jobPostings")
-public class JobPostings extends Vector{
+@XmlRootElement(name = "jobPostings")
+public class JobPostings extends Vector{	
+	@XmlElement(name = "jobPosting")
+	Vector<JobPosting> jobPosting;	
 	
-	@XmlElement(name="jobPosting")
-	private Vector<JobPosting> JobPosting;
-	
-	@XmlTransient
-	public Vector<JobPosting> getJobPosting() {
-		return JobPosting;
+	public Vector<JobPosting> getJobPostings() {
+		return jobPosting;
 	}
 
-	public void setJobPosting(Vector<JobPosting> JobPosting) {
-		this.JobPosting = JobPosting;
+	public void setJobPosting(Vector<JobPosting> JobPostings) {
+		this.jobPosting = JobPostings;
 	}
 }
+
+

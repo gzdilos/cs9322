@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -35,45 +36,79 @@ public class SearchServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		HttpSession mySession = request.getSession(false);
+		User user = (User)mySession.getAttribute("user");
 		RequestDispatcher r = request.getRequestDispatcher("");	
 		if(request.getParameterMap().containsKey("search_keyword")){			
 			Vector<JobPosting> resultList = new Vector<JobPosting>();
 			String keyword = request.getParameter("search_keyword");
-			String uri = 
-				    "http://localhost:8080/FoundITServer/jobposting/search?keyword="+keyword;
-				URL url = new URL(uri);
-				HttpURLConnection connection = 
-				    (HttpURLConnection) url.openConnection();
-				connection.setRequestMethod("GET");
-				connection.setRequestProperty("Accept", "application/xml");					
-			
-				try {
+			String uri = "/jobposting/search?keyword=";
+			RestServices rs = new RestServices();
+				HttpURLConnection connection = rs.doGet(keyword, uri, user.getUserType(), true);
+				if(connection.getResponseCode() == 200){
+					try {
+						JAXBContext jc;
+						jc = JAXBContext.newInstance(JobPostings.class);
+						InputStream xml = connection.getInputStream();		
+						
+						JobPostings jp = 
+						    (JobPostings) jc.createUnmarshaller().unmarshal(xml);
+						resultList.addAll(jp.getJobPostings());
+						System.out.println(resultList.size());
+						request.setAttribute("results", resultList);
+						connection.disconnect();					
+						r = request.getRequestDispatcher("/WEB-INF/jsps/results.jsp");
+						r.forward(request, response);
+						return;
 					
-					JAXBContext jc;
-					jc = JAXBContext.newInstance(JobPostings.class);
-					InputStream xml = connection.getInputStream();		
-					
-					JobPostings jp = 
-					    (JobPostings) jc.createUnmarshaller().unmarshal(xml);
-					resultList.addAll(jp.getJobPosting());
-					System.out.println(resultList.size());
+					} catch (JAXBException e) {
+						// TODO Auto-generated catch block
+						System.out.println(e.toString());
+						connection.disconnect();
+					}
+				} else {
 					request.setAttribute("results", resultList);
-					connection.disconnect();
-					
+					connection.disconnect();					
 					r = request.getRequestDispatcher("/WEB-INF/jsps/results.jsp");
 					r.forward(request, response);
 					return;
-					
-				
-				} catch (JAXBException e) {
-					// TODO Auto-generated catch block
-					System.out.println(e.toString());
-					connection.disconnect();
 				}
 				
+		}if (request.getParameterMap().containsKey("saved")){
+			Vector<JobPosting> resultList = new Vector<JobPosting>();
+			String keyword = request.getParameter("search_keyword");
+			for(String s:user.getSavedJobs()){
+				String uri = "/jobposting/";
+				RestServices rs = new RestServices();
+				HttpURLConnection connection = rs.doGet(s, uri, user.getUserType(), true);
+				if(connection.getResponseCode() == 200){
+					try {
+						JAXBContext jc;
+						jc = JAXBContext.newInstance(JobPosting.class);
+						InputStream xml = connection.getInputStream();		
+						
+						JobPosting jp = 
+						    (JobPosting) jc.createUnmarshaller().unmarshal(xml);
+						resultList.add(jp);
+						connection.disconnect();
+					
+					} catch (JAXBException e) {
+						// TODO Auto-generated catch block
+						System.out.println(e.toString());
+						connection.disconnect();
+					}
+				} 
+				
+			}
+			request.setAttribute("results", resultList);				
+			r = request.getRequestDispatcher("/WEB-INF/jsps/savedJobs.jsp");
+			r.forward(request, response);
+			return;
+		} else{
+			r = request.getRequestDispatcher("home.jsp");
+			r.forward(request, response);
+			return;
 		}
-		r.forward(request, response);
-		return;
 	}
 
 	/**

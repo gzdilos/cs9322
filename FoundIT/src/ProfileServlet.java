@@ -42,13 +42,28 @@ public class ProfileServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession mySession = request.getSession(false);
 		RequestDispatcher r = request.getRequestDispatcher("");	
+		String userType = request.getParameter("userType");
 		User u = (User) mySession.getAttribute("user");
+		if(u != null){
+			userType = u.getUserType();
+		}
+		
 		if(request.getParameterMap().containsKey("action")){
 			String action = request.getParameter("action");
 			if(action.equals("update")){
-				System.out.println("Updating");
+				
+				String updateUrl;
+				if(userType.equals("candidate")){
+					updateUrl = "userprofile";
+				}else if (userType.equals("manager")){
+					updateUrl = "companyprofile";
+				} else {
+					response.sendRedirect("home.jsp");
+					return;
+				}
+				
 				String uri = 
-					    "http://localhost:8080/FoundITServer/userprofile";
+					    "http://localhost:8080/FoundITServer/"+updateUrl;
 				URL url = new URL(uri);
 				HttpURLConnection connection = 
 				    (HttpURLConnection) url.openConnection();
@@ -56,19 +71,34 @@ public class ProfileServlet extends HttpServlet {
 				connection.setRequestProperty("Content-Type", "application/xml");
 				connection.setDoOutput(true);
 				UserProfile user = new UserProfile();
-				user.setName(request.getParameter("name"));
-				user.setCurrentPosition(request.getParameter("currentPosition"));
-				user.setEducation(request.getParameter("education"));
-				user.setPastExperience(request.getParameter("pastExperience"));
-				user.setProfessionalSkills(request.getParameter("professionalSkills"));
-				user.setId(request.getParameter("id"));
+				CompanyProfile company = new CompanyProfile();
+				if(userType.equals("candidate")){
+					user.setCurrentPosition(request.getParameter("currentPosition"));
+					user.setEducation(request.getParameter("education"));
+					user.setPastExperience(request.getParameter("pastExperience"));
+					user.setProfessionalSkills(request.getParameter("professionalSkills"));
+				}else if(userType.equals("manager")){
+					company.setName(request.getParameter("name"));
+					company.setAddress(request.getParameter("address"));
+					company.setIndustryType(request.getParameter("industrytype"));
+					company.setDescription(request.getParameter("description"));
+					company.setWebsite(request.getParameter("website"));
+				}
 				OutputStream os = connection.getOutputStream();
 				try {
 					JAXBContext jc;
-					jc = JAXBContext.newInstance(UserProfile.class);
-					Marshaller m = jc.createMarshaller();
-					//m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-					m.marshal(user,os);
+					if(userType.equals("candidate")){
+						jc = JAXBContext.newInstance(UserProfile.class);
+						Marshaller m = jc.createMarshaller();					
+						m.marshal(user,os);
+					}else if(userType.equals("manager")){
+						jc = JAXBContext.newInstance(CompanyProfile.class);
+						Marshaller m = jc.createMarshaller();					
+						m.marshal(user,os);
+					}else{
+						response.sendRedirect("home.jsp");
+						return;
+					}
 					os.flush();
 					connection.getResponseCode();
 			        connection.disconnect();					
@@ -82,8 +112,18 @@ public class ProfileServlet extends HttpServlet {
 			}
 		}
 		if(u != null){
+			String updateUrl;
+			request.setAttribute("userType", userType);
+			if(userType.equals("candidate")){
+				updateUrl = "userprofile";
+			}else if (userType.equals("manager")){
+				updateUrl = "companyprofile";
+			} else {
+				response.sendRedirect("home.jsp");
+				return;
+			}
 			String uri = 
-			    "http://localhost:8080/FoundITServer/userprofile/"+u.getId();
+			    "http://localhost:8080/FoundITServer/"+updateUrl+"/"+u.getId();
 			URL url = new URL(uri);
 			HttpURLConnection connection = 
 			    (HttpURLConnection) url.openConnection();
@@ -92,13 +132,22 @@ public class ProfileServlet extends HttpServlet {
 		
 			try {
 				JAXBContext jc;
-				jc = JAXBContext.newInstance(UserProfile.class);
-				InputStream xml = connection.getInputStream();		
-				
-				UserProfile profile = 
-				    (UserProfile) jc.createUnmarshaller().unmarshal(xml);
-				connection.disconnect();
-				mySession.setAttribute("profile", profile);
+					if(userType.equals("candidate")){
+					jc = JAXBContext.newInstance(UserProfile.class);
+					InputStream xml = connection.getInputStream();		
+					
+					UserProfile profile = 
+					    (UserProfile) jc.createUnmarshaller().unmarshal(xml);
+					mySession.setAttribute("profile", profile);
+				}else if(userType.equals("manager")){
+					jc = JAXBContext.newInstance(CompanyProfile.class);
+					InputStream xml = connection.getInputStream();		
+					
+					CompanyProfile profile = 
+					    (CompanyProfile) jc.createUnmarshaller().unmarshal(xml);
+					mySession.setAttribute("companyprofile", profile);		
+				}
+				connection.disconnect();				
 				r = getServletContext().getRequestDispatcher( "/WEB-INF/jsps/profile.jsp");
 				r.forward(request, response);
 				return;

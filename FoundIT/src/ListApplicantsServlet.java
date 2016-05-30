@@ -57,6 +57,22 @@ public class ListApplicantsServlet extends HttpServlet{
 		RequestDispatcher r = request.getRequestDispatcher("");	
 		User u = (User) mySession.getAttribute("user");
 		
+		if(request.getParameterMap().containsKey("details")){
+			System.out.println("recevide " + request.getParameter("index"));
+			Integer index = Integer.parseInt(request.getParameter("index"));
+			System.out.println("Recevied int" + index);
+			
+			ReviewApplications listapp = (ReviewApplications) mySession.getAttribute("listapp");
+			
+			ReviewApplication rev = listapp.getReview(index);
+			System.out.println("cover letter is " + rev.getJobApplication().getCoverLetter());
+			
+			mySession.setAttribute("applicant", rev);
+			mySession.setAttribute("indexApp", index);
+			r = getServletContext().getRequestDispatcher( "/WEB-INF/jsps/detailsApp.jsp");
+			r.forward(request, response);
+			return;
+		}
 		if(request.getParameterMap().containsKey("shortlist")){
 			String action = request.getParameter("shortlist");
 			if(action.equals("success")){

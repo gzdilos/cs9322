@@ -16,84 +16,20 @@
         	<legend>List Applicants</legend>
        				<c:forEach begin="0" end="${sessionScope.listapp.size - 1}" var="index">
        					<form class="form-horizontal" role="form" action="listapplicants" method="get">
-       					<h3>User Profile</h3>
-    					<div class="form-group">
-							<label class="col-sm-2 control-label" for="name">Name</label>
-							<div class="col-sm-10">
-								${sessionScope.listapp.getProfile(index).name}	
-							</div>		
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="currentPosition">Current Position</label>			
-							<div class="col-sm-10">
-								${sessionScope.listapp.getProfile(index).currentPosition}	
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="education">Education</label>			
-							<div class="col-sm-10">
-								${sessionScope.listapp.getProfile(index).education}	
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="pastExperience">Past Experience</label>		
-							<div class="col-sm-10">
-								${sessionScope.listapp.getProfile(index).pastExperience}	
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="profressionalSkills">Professional Skills</label>			
-							<div class="col-sm-10">
-								${sessionScope.listapp.getProfile(index).professionalSkills}	
-							</div>
-						</div>
-						
-						<h3>Job Application</h3>
-						
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="coverletter">Cover Letter}</label>			
-							<div class="col-sm-10">
-								${sessionScope.listapp.getJobApp(index).coverLetter}	
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="resume">Resume</label>			
-							<div class="col-sm-10">
-								${sessionScope.listapp.getJobApp(index).resume}	
-							</div>
-						</div>
-						
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="status">Status</label>			
-							<div class="col-sm-10">
-								${sessionScope.listapp.getJobApp(index).status}	
-							</div>
-						</div>
-						
-						<input  type="hidden" id="${sessionScope.listapp.getProfile(index).id}" name ="userid" value=${sessionScope.listapp.getProfile(index).id}>
-						<input  type="hidden" id="${sessionScope.listapp.getJobApp(index).id}" name ="jobid" value=${sessionScope.listapp.getJobApp(index).id}>
-						<c:choose>
-       					<c:when test="${sessionScope.listapp.getJobApp(index).status == 'submitted'}">
+       					<h3>Applicant ${index}</h3>
+    					
+						<input  type="hidden" id="${sessionScope.listapp.getProfile(index).id}" name="userid" value=${sessionScope.listapp.getProfile(index).id}>
+						<input  type="hidden" id="${sessionScope.listapp.getJobApp(index).id}" name="jobid" value=${sessionScope.listapp.getJobApp(index).id}>
+						<input  type="hidden" id="index" name="index" value="${index}">
 						<div class="form-group">
 							<div class="col-sm-offset-2 col-sm-10">
 				             	<div class="pull-left">
-				               		<input type="hidden" value="success" name="shortlist">
-				              		<button type="submit" class="btn btn-primary btn-lg btn-block">Shortlist Applicant</button>
+				               		<input type="hidden" value="details" name="details">
+				              		<button type="submit" class="btn btn-primary btn-lg btn-block">More Details</button>
 				             	</div>
-				             	<div class="pull-right">
-				               		<input type="hidden" value="fail" name="shortlist">
-				              		<button type="submit" class="btn btn-primary btn-lg btn-block">Reject Applicant</button>
-				             	</div>
+				     
 				           </div>
-				           <div class="form-group">
-								<label class="col-sm-2 control-label" for="status">Comments</label>			
-								<div class="col-sm-10">
-									<input id ="comments"  size ="30" name="comments" value="Enter Comments Here">
-								</div>
-							</div>
 				        </div>
-				        </c:when>
-				        </c:choose>
 				        </form>
 					</c:forEach>	
 					

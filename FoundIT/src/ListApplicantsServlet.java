@@ -164,7 +164,11 @@ public class ListApplicantsServlet extends HttpServlet{
 		//Somehow get all job applications
 		//Should receive an xml
 		//TODO: Remove comment below
-		
+		if (mySession.getAttribute("listapp") != null) {
+			r = getServletContext().getRequestDispatcher( "/WEB-INF/jsps/listapplications.jsp");
+			r.forward(request, response);
+			return;
+		}
 		String uri = "http://localhost:8080/FoundITServer/jobappreviewassign/reviewer/3"; //u.getId()
 		URL url = new URL(uri);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -179,6 +183,7 @@ public class ListApplicantsServlet extends HttpServlet{
 		ReviewApplications listapp = parseStreamJobApp(xml);
 		connection.disconnect();
 		listapp = getUserProfile(listapp);
+		mySession.setAttribute("listapp", listapp);
 		/*Local testing
 			ReviewApplications listapp = parseStreamJobApp(null);
 		
@@ -203,7 +208,7 @@ public class ListApplicantsServlet extends HttpServlet{
 			connection.disconnect();
 		}*/
 
-		mySession.setAttribute("listapp", listapp);
+		
 		r = getServletContext().getRequestDispatcher( "/WEB-INF/jsps/listapplications.jsp");
 		r.forward(request, response);
 		return;

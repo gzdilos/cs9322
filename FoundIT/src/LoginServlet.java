@@ -63,6 +63,11 @@ public class LoginServlet extends HttpServlet {
 					userList = getUserList();
 				}
 			}		
+			if(request.getRequestURI().contains("jobalert")) {
+				RequestDispatcher rd = request.getRequestDispatcher("/jobalert");
+				rd.forward(request, response);
+				return;
+			}
 			if(request.getParameterMap().containsKey("action")){
 				String action = request.getParameter("action");
 					if(action.equals("logout")){

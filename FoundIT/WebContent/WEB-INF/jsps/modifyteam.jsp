@@ -7,36 +7,40 @@
 
 </head>
 <body>
-  <div class="row">
+ <div class="row">
     <div class="col-md-4 col-md-offset-4">
       <form class="form-horizontal" role="form" action="login" method="get">
         <fieldset>
-        	<legend>Register</legend>
+        	<c:if test="${requestScope.action == 'addMember'}">
+        	<legend>Create new Team Member</legend>    
+        	</c:if>
+  			
 					<div class="form-group">
-						<label class="col-sm-2 control-label" for="email">Email Address</label>			
+						<label class="col-sm-2 control-label" for="username">Username</label>			
 						<div class="col-sm-10">
-							<input id ="email" type="email" size ="30" name="email" placeholder="email@example.com" required>
+							<input id ="username" type="text" size ="30" name="username" required>
 						</div>
 					</div>
 					<div class="form-group">
 						<label class="col-sm-2 control-label" for="password">Password</label>			
 						<div class="col-sm-10">
-							<input id ="password" type="password" size ="30" name="password" placeholder="Password" required >
+							<input id ="password" type="text" size ="30" name="password" required>
 						</div>
 					</div>
-					
+					<div class="form-group">
+						<label class="col-sm-2 control-label" for="professionalskills">Skills</label>			
+						<div class="col-sm-10">
+							<input id ="professionalskills" type="text" size ="30" name="professionalskills" required>
+						</div>
+					</div>					
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10">
 			             	<div class="pull-left">
-			               		<input type="hidden" value="preregister" name="action">
-			              		<button type="submit" name="registerEmployee" class="btn btn-primary btn-lg btn-block">Register as Employee</button>
-			              		<button type="submit" name="registerEmployer" class="btn btn-primary btn-lg btn-block">Register as Employer</button>
+			              		<input type="hidden" value="addReviewer" name="action">			
+			              		<button type="submit" class="btn btn-primary btn-lg btn-block">Create Team Member</button>
 			              		
 			             	</div>
 			           </div>
 			        </div>
-			</fieldset>
-		</form>
-	</div>
 </body>
 </html>

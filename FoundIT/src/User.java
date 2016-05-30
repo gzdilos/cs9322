@@ -55,5 +55,10 @@ public class User implements Serializable{
 		User u = (User) obj;
 		return (username.equals(u.username) && password.equals(u.password));
 	}
+	public void removeJob(String parameter) {
+		savedJobs.remove(savedJobs.indexOf(parameter));
+		
+		
+	}
 	
 }

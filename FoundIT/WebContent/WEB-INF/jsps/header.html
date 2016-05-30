@@ -11,7 +11,21 @@
 	<nav class="navbar navbar-inverse">
 		<div class="container-fluid">
 			<div class ="navbar-header">
-				<a class="navbar-brand" href="home.jsp">FoundIT</a>
+				<c:choose>
+					<c:when test="${sessionScope.user.userType == 'candidate'}">
+						<a class="navbar-brand" href="search">FoundIT</a>
+					</c:when>
+					<c:when test="${sessionScope.user.userType == 'manager'}">
+						<a class="navbar-brand" href="manager">FoundIT</a>
+					</c:when>
+					<c:when test="${sessionScope.user.userType == 'reviewer'}">
+						<a class="navbar-brand" href="review">FoundIT</a>
+					</c:when>
+					<c:otherwise>
+						<a class="navbar-brand" href="home.jsp">FoundIT</a>
+					</c:otherwise>
+				</c:choose>
+				
 			</div>
 			<ul class="nav navbar-nav">
 				<c:if test="${empty sessionScope.loggedIn}">			
@@ -19,9 +33,21 @@
 					<li><a  href="login?register">Register</a></li>		
 				</c:if>
 				<c:if test="${not empty sessionScope.loggedIn}">
-					<li><a href="login?action=logout" >Log Out</a></li>
+					<li><a href="login?action=logout" >Log Out</a></li>					
+					<c:choose>
+					<c:when test="${sessionScope.user.userType == 'candidate'}">
 					<li><a href="profile" >My Profile</a></li>
-					<li><a href="applications">My Applications</a>
+					<li><a href="applications">My Applications</a></li>
+					<li><a href="search?saved">Saved Jobs</a></li>
+					</c:when>
+					<c:when test="${sessionScope.user.userType == 'manager'}">
+					<li><a href="profile" >Company Profile</a></li>
+					<li><a href="manager?team">Hiring Team</a></li>
+					</c:when>
+					<c:when test="${sessionScope.user.userType == 'reviewer'}">
+					<li><a href="applications">My Assignments</a></li>
+					</c:when>
+					</c:choose>
 				</c:if>
 			</ul>
 		</div>

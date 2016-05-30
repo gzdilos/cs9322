@@ -50,9 +50,9 @@ hgroup h2.lead { font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; 
 					<li>Salary <span>${result.salaryLevel}</span></li>
 					<li>Location <span>${result.location}</span></li>
 				</ul>
-				<form method="post" name="save" id=${result.id}>
+				<form method="post" name="remove" id=${result.id}>
 				<input type="hidden" id="jobID" name="jobID" value=${result.id}>				
-				<button name="save" type="submit" class="btn btn-primary btn-lg btn-block">Save Job</button>	
+				<button name="removeJob" type="submit" class="btn btn-primary btn-lg btn-block">Remove</button>	
 				</form>			
 				<form method="post" name="apply" id=${result.id}>
 				<input type="hidden" id="jobID" name="jobID" value=${result.id}>	
@@ -72,22 +72,10 @@ $(document).on("submit", "form", function(event)
 			
 			
 			var userid = document.getElementById("userID").value;
-		    event.preventDefault();    
-		    if(this.name == 'save'){
-		    var action = "saveJob";
-		    $.ajax({
-	            url:'login',
-	            data:{'action':action,'jobid':this.jobID.value,'userid':userid},
-	            type:'post',
-	            cache:false,
-	            success:function(data){
-	               alert('Job Listing Saved');
-	            },
-	            error:function(data){
-	              alert('Error');
-	            }
-	         });  
-		    }else if(this.name =='apply'){
+		     
+ 
+		    if(this.name =='apply'){
+		    	 event.preventDefault();  
 		    	var action = "apply";
 		    	$.ajax({
 	            url:'application',
@@ -96,6 +84,7 @@ $(document).on("submit", "form", function(event)
 	            cache:false,
 	            success:function(data){
 	               alert('Application Successful');
+	               $('#somediv').text(responseText); 
 	            },
 	            error:function(data){
 	              alert('Error');

@@ -34,9 +34,10 @@ hgroup h2.lead { font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; 
 <body>
 <div class="col-md-9" >	
 <c:if test = "${empty resquestScope.results}">
-<h1>No jobs matched your search terms</h1>
+<h1>You have no saved jobs</h1>
 </c:if>
-<c:forEach var="result" items="${requestScope.results}">	
+<c:forEach var="result" items="${requestScope.results}">
+	<c:if test="${result.status == 'open'}">	
 	<div class="result" id=${result.id}>
 	<article class="search-result row">	
 		<div class="col-md-6 excerpet">
@@ -50,9 +51,9 @@ hgroup h2.lead { font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; 
 					<li>Salary <span>${result.salaryLevel}</span></li>
 					<li>Location <span>${result.location}</span></li>
 				</ul>
-				<form method="post" name="remove" id=${result.id}>
+				<form method="get" action ="login" id=${result.id}>
 				<input type="hidden" id="jobID" name="jobID" value=${result.id}>				
-				<button name="removeJob" type="submit" class="btn btn-primary btn-lg btn-block">Remove</button>	
+				<button name="action"  value ="removeJob" type="submit" class="btn btn-primary btn-lg btn-block">Remove</button>	
 				</form>			
 				<form method="post" name="apply" id=${result.id}>
 				<input type="hidden" id="jobID" name="jobID" value=${result.id}>	
@@ -62,6 +63,7 @@ hgroup h2.lead { font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; 
 						
 	</article>	
 	</div>	
+	</c:if>
 </c:forEach>		
 </div>
 <input type="hidden" id="userID" name=userID value=${sessionScope.user.id}>

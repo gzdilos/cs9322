@@ -67,7 +67,6 @@ public class SearchServlet extends HttpServlet {
 						connection.disconnect();
 					}
 				} else {
-					request.setAttribute("results", resultList);
 					connection.disconnect();					
 					r = request.getRequestDispatcher("/WEB-INF/jsps/results.jsp");
 					r.forward(request, response);
@@ -97,10 +96,11 @@ public class SearchServlet extends HttpServlet {
 						System.out.println(e.toString());
 						connection.disconnect();
 					}
+					request.setAttribute("results", resultList);
 				} 
 				
 			}
-			request.setAttribute("results", resultList);				
+							
 			r = request.getRequestDispatcher("/WEB-INF/jsps/savedJobs.jsp");
 			r.forward(request, response);
 			return;

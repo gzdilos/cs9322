@@ -266,12 +266,14 @@ public class LoginServlet extends HttpServlet {
 						userList.set(index, thisUser);
 						updateUserList(userList);
 					}else if(action.equals("removeJob")){
-						System.out.println(request.getParameter("jobid"));
+						System.out.println("removing"+request.getParameter("jobID"));
 						User thisUser =(User) mySession.getAttribute("user");
-						thisUser.removeJob(request.getParameter("jobid"));
+						thisUser.removeJob(request.getParameter("jobID"));
 						int index = userList.indexOf(thisUser);
 						userList.set(index, thisUser);
 						updateUserList(userList);
+						response.sendRedirect("search?saved");
+						return;
 					}
 			}
 			if(request.getParameterMap().containsKey("register")){

@@ -33,9 +33,9 @@
 <body>
 <div class="col-md-9" >	
 <c:choose>
-<c:when test = "${empty requestScope.jobsList}">
+<c:when test = "${empty requestScope.hiringTeam}">
 	 <div class="col-sm-offset-3 col-sm-6">
-		<h1>You have no job postings at the moment.</h1>
+		<h1>You currently have no Hiring Team</h1>
 	</div>
 </c:when>
 <c:otherwise>

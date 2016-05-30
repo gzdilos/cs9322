@@ -63,7 +63,7 @@ public class ListApplicantsServlet extends HttpServlet{
 				
 				String userid = request.getParameter("userid");
 				String jobid = request.getParameter("jobid");
-				
+				String comments = request.getParameter("comments");
 				System.out.println("Selected to ShortList Applicant with userid: " + userid + " and jobid: " + jobid);
 				
 				ReviewApplications listapp = (ReviewApplications) mySession.getAttribute("listapp");
@@ -82,23 +82,20 @@ public class ListApplicantsServlet extends HttpServlet{
 				
 				//TODO: Need to send something to the rest server to tell the application has been shortlisted!!
 				//Should get the user profile of an application
-				/*
-				String uri = "http://localhost:8080/FoundITServer/review?teammemberprofileid=?"; 
+				
+				String uri = "http://localhost:8080/FoundITServer/review?teammemberprofileid=" + userid
+						+ "&jobapplicationid=" + listapp.getJobApp(i).getId()+ "&comments=" + comments + "&decision=" + JobApplication.STATUS_SHORTLISTED; 
 				URL url = new URL(uri);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				
-				connection.setRequestMethod("PUT");
+				connection.setRequestMethod("POST");
 				connection.setRequestProperty("Content-Type", "application/xml");
+				connection.setRequestProperty("Accept", "application/xml");
 				connection.setDoOutput(true);
-				UserProfile user = new UserProfile();
-				user.setName(request.getParameter("name"));
-				user.setCurrentPosition(request.getParameter("currentPosition"));
-				user.setEducation(request.getParameter("education"));
-				user.setPastExperience(request.getParameter("pastExperience"));
-				user.setProfessionalSkills(request.getParameter("professionalSkills"));
-				user.setId(request.getParameter("id"));
-				OutputStream os = connection.getOutputStream();
-				*/
+				connection.setDoInput(true);
+				connection.setRequestProperty("SecurityKey", "i-am-foundit");
+				connection.setRequestProperty("ShortKey", "app-reviewer");
+				
 				mySession.removeAttribute("listapp");
 				
 				mySession.setAttribute("listapp", listapp);
@@ -110,7 +107,7 @@ public class ListApplicantsServlet extends HttpServlet{
 			} else {
 				String userid = request.getParameter("userid");
 				String jobid = request.getParameter("jobid");
-				
+				String comments = request.getParameter("comments");
 				System.out.println("Selected to Reject Applicant with userid: " + userid + " and jobid: " + jobid);
 				
 				ReviewApplications listapp = (ReviewApplications) mySession.getAttribute("listapp");
@@ -126,6 +123,18 @@ public class ListApplicantsServlet extends HttpServlet{
 				}
 				
 				//TODO: Need to send something to the rest server to tell the application has been shortlisted!!
+				String uri = "http://localhost:8080/FoundITServer/review?teammemberprofileid=" + userid
+						+ "&jobapplicationid=" + listapp.getJobApp(i).getId()+ "&comments=" + comments + "&decision=" + JobApplication.STATUS_NOT_SHORTLISTED; 
+				URL url = new URL(uri);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				
+				connection.setRequestMethod("POST");
+				connection.setRequestProperty("Content-Type", "application/xml");
+				connection.setRequestProperty("Accept", "application/xml");
+				connection.setDoOutput(true);
+				connection.setDoInput(true);
+				connection.setRequestProperty("SecurityKey", "i-am-foundit");
+				connection.setRequestProperty("ShortKey", "app-reviewer");
 				
 				mySession.removeAttribute("listapp");
 				mySession.setAttribute("listapp", listapp);

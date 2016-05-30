@@ -16,7 +16,7 @@
         	<legend>List Applicants</legend>
        				<c:forEach begin="0" end="${sessionScope.listapp.size - 1}" var="index">
        					<form class="form-horizontal" role="form" action="listapplicants" method="get">
-       					<h1>User Profile</h1>
+       					<h3>User Profile</h3>
     					<div class="form-group">
 							<label class="col-sm-2 control-label" for="name">Name</label>
 							<div class="col-sm-10">
@@ -48,7 +48,7 @@
 							</div>
 						</div>
 						
-						<h1>Job Application</h1>
+						<h3>Job Application</h3>
 						
 						<div class="form-group">
 							<label class="col-sm-2 control-label" for="coverletter">Cover Letter}</label>			
@@ -85,6 +85,12 @@
 				              		<button type="submit" class="btn btn-primary btn-lg btn-block">Reject Applicant</button>
 				             	</div>
 				           </div>
+				           <div class="form-group">
+								<label class="col-sm-2 control-label" for="status">Comments</label>			
+								<div class="col-sm-10">
+									<input id ="comments"  size ="30" name="comments" value="Enter Comments Here">
+								</div>
+							</div>
 				        </div>
 				        </c:when>
 				        </c:choose>

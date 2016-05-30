@@ -94,16 +94,18 @@ public class LoginServlet extends HttpServlet {
 						User thisUser = (User) userList.get(userList.indexOf(newLogin));
 						
 						if(thisUser.userType.contentEquals("Reviewer")) {
-							String id = getReviewerID(thisUser.username, thisUser.password);
 							
-							if (id == null) {
-								response.sendRedirect("home.jsp");
-								return;
-							} else {
-								thisUser.setId(id);
-								mySession.setAttribute("loggedIn", true);
-								mySession.setAttribute("user", thisUser);
-							}
+							//String id = getReviewerID(thisUser.username, thisUser.password);
+							
+							//if (id == null) {
+								//response.sendRedirect("home.jsp");
+								//return;
+							//} else {
+							//thisUser.setId(userList);
+							//mySession.setAttribute("loggedIn", true);
+							//mySession.setAttribute("user", thisUser);
+							//}
+							//thisUser.setId(userList.indexOf(newLogin));
 						}
 						System.out.println("Login Success");
 						mySession.setAttribute("loggedIn", true);
@@ -111,7 +113,8 @@ public class LoginServlet extends HttpServlet {
 						response.sendRedirect("home.jsp");
 						return;
 					} else{
-						System.out.println("Checking if user is reviewer");
+						//System.out.println("Checking if user is reviewer");
+						/*
 						//Check if user is reviewer
 						String id = getReviewerID(newLogin.username, newLogin.password);
 						
@@ -128,8 +131,8 @@ public class LoginServlet extends HttpServlet {
 						mySession.setAttribute("loggedIn", true);
 						mySession.setAttribute("user", newLogin);
 						response.sendRedirect("home.jsp");
-						return;
-						//System.out.println("User not found");
+						return;*/
+						System.out.println("User not found");
 					}
 				}else if(action.equals("register")){
 					System.out.println("Registering");

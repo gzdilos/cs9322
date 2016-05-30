@@ -90,7 +90,7 @@ $(document).on("submit", "form", function(event)
 		    }else if(this.name =='apply'){
 		    	var action = "apply";
 		    	$.ajax({
-	            url:'application',
+	            url:'applications',
 	            data:{'action':action,'jobid':this.jobID.value,'userid':userid},
 	            type:'post',
 	            cache:false,

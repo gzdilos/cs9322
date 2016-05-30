@@ -4,6 +4,21 @@ public class ApplicationDisplay {
 	String title;
 	String company;
 	String status;
+	String applicationId;
+	String jobpostingStatus;
+	
+	public String getJobpostingStatus() {
+		return jobpostingStatus;
+	}
+	public void setJobpostingStatus(String jobpostingStatus) {
+		this.jobpostingStatus = jobpostingStatus;
+	}
+	public String getApplicationId() {
+		return applicationId;
+	}
+	public void setApplicationId(String applicationId) {
+		this.applicationId = applicationId;
+	}
 	public String getJobId() {
 		return jobId;
 	}
@@ -28,5 +43,4 @@ public class ApplicationDisplay {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
 }

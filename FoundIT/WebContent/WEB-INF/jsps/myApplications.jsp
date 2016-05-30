@@ -58,18 +58,32 @@
    	<c:forEach var="application" items="${requestScope.myApplications}">
    	<tr>
    		<td>
-   			Job ID
+   			${application.jobId}
    		</td>
    		<td>
-   			Job Title
+   			${application.title}
    		</td>
    		<td>
-   			Company
+   			${application.company}
    		</td>
    		<td>
-   			Status
+   			${application.status}
    		</td>
    		<td>
+   		<c:choose>
+   		<c:when test="${application.jobpostingStatus == 'open'}">
+   			<form method="get" action="application" >
+			<input type="hidden" id="applicationID" name="applicationID" value=${application.applicationId}>	
+			<button name="action" value ="withdraw" type="submit" class="btn btn-primary btn-lg btn-block">Withdraw</a>
+			</button>
+			</form>
+			<form method="get" action="application" >
+			<input type="hidden" id="applicationID" name="applicationID" value=${application.applicationId}>	
+			<button name="action" value ="update" type="submit" class="btn btn-primary btn-lg btn-block">Update</a>
+			</button>
+			</form>
+   		</c:when>
+   		</c:choose>
    			Action
    		</td>  
    	</tr>			

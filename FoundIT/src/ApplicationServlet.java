@@ -74,6 +74,20 @@ public class ApplicationServlet extends HttpServlet {
 					r.forward(request, response);
 					return;
 			}
+			if(action.equals("withdraw")){
+				
+				String appID = request.getParameter("applicationID");
+				String uri = "/jobapplication";
+				String query = "/"+appID;
+				RestServices rs = new RestServices();
+				HttpURLConnection connection = rs.doDelete(query, uri, user.getUserType(), true) ;
+				if(connection.getResponseCode() == 200){
+					System.out.println("delete success");
+				}
+				r = request.getRequestDispatcher("/WEB-INF/jsps/application.jsp");
+				r.forward(request, response);
+				return;
+			}
 		}else{
 			Vector<ApplicationDisplay> myApplications = new Vector<ApplicationDisplay>();
 			User u = (User)mySession.getAttribute("user");
@@ -83,8 +97,7 @@ public class ApplicationServlet extends HttpServlet {
 				HttpURLConnection connection = 
 				    (HttpURLConnection) url.openConnection();
 				connection.setRequestMethod("GET");
-				connection.setRequestProperty("Accept", "application/xml");					
-			
+				connection.setRequestProperty("Accept", "application/xml");				
 				try {
 					JAXBContext jc;
 					jc = JAXBContext.newInstance(JobApplications.class);
@@ -111,23 +124,26 @@ public class ApplicationServlet extends HttpServlet {
 							System.out.println("Got job post info" +jobid+" "+title+" " +companyId);
 							connection.disconnect();
 							uri = 
-								    "http://localhost:8080/FoundITServer/companyProfileId/"+companyId;
+								    "http://localhost:8080/FoundITServer/companyprofile/"+companyId;
 								url = new URL(uri);
 								connection = 
 								    (HttpURLConnection) url.openConnection();
 								connection.setRequestMethod("GET");
 								connection.setRequestProperty("Accept", "application/xml");								
 								xml = connection.getInputStream();
-								connection.disconnect();
+								
 								jc = JAXBContext.newInstance(CompanyProfile.class);
-								CompanyProfiles cp = (CompanyProfiles) jc.createUnmarshaller().unmarshal(xml);
+								CompanyProfile cp = (CompanyProfile) jc.createUnmarshaller().unmarshal(xml);
 								System.out.println("Got company info");
-								String companyName = cp.getCompanyProfiles().get(0).getName();
+								connection.disconnect();
+								String companyName = cp.getName();
 						ApplicationDisplay app = new ApplicationDisplay();
 						app.setCompany(companyName);
 						app.setJobId(jobid);
 						app.setStatus(j.getStatus());
+						app.setJobpostingStatus(jp.getStatus());
 						app.setTitle(title);
+						app.setApplicationId(j.getId());
 						connection.disconnect();
 						myApplications.add(app);
 					}

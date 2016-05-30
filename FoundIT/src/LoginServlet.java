@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Vector;
@@ -26,7 +28,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
+
+
+
+
+
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -78,16 +88,48 @@ public class LoginServlet extends HttpServlet {
 					newLogin.setUsername(request.getParameter("login_username"));
 					newLogin.setPassword(request.getParameter("login_password"));
 					if(userList.contains(newLogin)){
+						//Check if user is reviewer
 						System.out.println(userList.size());
 						System.out.println(userList.indexOf(newLogin));
 						User thisUser = (User) userList.get(userList.indexOf(newLogin));
+						
+						if(thisUser.userType.contentEquals("Reviewer")) {
+							String id = getReviewerID(thisUser.username, thisUser.password);
+							
+							if (id == null) {
+								response.sendRedirect("home.jsp");
+								return;
+							} else {
+								thisUser.setId(id);
+								mySession.setAttribute("loggedIn", true);
+								mySession.setAttribute("user", thisUser);
+							}
+						}
 						System.out.println("Login Success");
 						mySession.setAttribute("loggedIn", true);
 						mySession.setAttribute("user", thisUser);
 						response.sendRedirect("home.jsp");
 						return;
 					} else{
-						System.out.println("User not found");
+						System.out.println("Checking if user is reviewer");
+						//Check if user is reviewer
+						String id = getReviewerID(newLogin.username, newLogin.password);
+						
+						if (id == null) {
+							response.sendRedirect("home.jsp");
+							return;
+						} else {
+							newLogin.setId(id);
+							mySession.setAttribute("loggedIn", true);
+							mySession.setAttribute("user", newLogin);
+						}
+						newLogin.setUserType("Reviewer");
+						System.out.println("Login Success");
+						mySession.setAttribute("loggedIn", true);
+						mySession.setAttribute("user", newLogin);
+						response.sendRedirect("home.jsp");
+						return;
+						//System.out.println("User not found");
 					}
 				}else if(action.equals("register")){
 					System.out.println("Registering");
@@ -145,6 +187,94 @@ public class LoginServlet extends HttpServlet {
 
 		return;
 
+	}
+
+	//Need to call the server to check reviewer id
+	private String getReviewerID(String username, String password) {
+		System.out.println("Checking server with " + username + " " + password);
+		String uri = "http://localhost:8080/FoundITServer/teammemberprofile?username="+ username+"&password=" + password + "&professionalskills=s";
+		URL url;
+		HttpURLConnection connection;
+		try {
+			url = new URL(uri);
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");	
+			connection.setRequestProperty("Accept", "application/xml");		
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("SecurityKey", "i-am-foundit");
+			connection.setRequestProperty("ShortKey", "app-reviewer");
+			
+			//BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			return parseReviewXML(connection.getInputStream());
+			
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+		return null;
+	}
+
+	/*
+	 * 
+	 * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+		<teamMemberProfile href="http://localhost:8080/FoundITServer/teammemberprofile/6" rel="teammemberprofile">
+		    <id>6</id>
+		    <password>review1</password>
+		    <professionalSkills>s</professionalSkills>
+		    <username>review1</username>
+		</teamMemberProfile>
+	 */
+	private String parseReviewXML(InputStream inputStream) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = null;
+		try {
+			dBuilder = factory.newDocumentBuilder();
+		} catch (ParserConfigurationException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			File filetemp = new File("review.xml");
+			Document doc;
+			
+			if (inputStream == null) {
+				doc = dBuilder.parse(filetemp);
+			} else {
+				doc = dBuilder.parse(inputStream);
+			}
+			
+			doc.getDocumentElement().normalize();
+			
+			NodeList nList = doc.getElementsByTagName("teamMemberProfile");
+	        
+	        for (int temp = 0; temp < nList.getLength(); temp++) {
+	        	Node nNode = nList.item(temp);
+	            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+	            	
+	            	Element eElement = (Element) nNode;
+	            	
+	            	System.out.println(eElement.getElementsByTagName("id").item(0).getTextContent());
+	            	System.out.println(eElement.getElementsByTagName("password").item(0).getTextContent());
+	            	System.out.println(eElement.getElementsByTagName("professionalSkills").item(0).getTextContent());
+	            	System.out.println(eElement.getElementsByTagName("username").item(0).getTextContent());
+	            	
+	            	return eElement.getElementsByTagName("id").item(0).getTextContent();
+	            }
+	         }
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

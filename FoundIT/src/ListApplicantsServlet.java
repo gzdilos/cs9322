@@ -83,7 +83,7 @@ public class ListApplicantsServlet extends HttpServlet{
 				//TODO: Need to send something to the rest server to tell the application has been shortlisted!!
 				//Should get the user profile of an application
 				/*
-				String uri = "http://localhost:8080/FoundITServer/userprofile"; 
+				String uri = "http://localhost:8080/FoundITServer/review?teammemberprofileid=?"; 
 				URL url = new URL(uri);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				
@@ -140,11 +140,13 @@ public class ListApplicantsServlet extends HttpServlet{
 		//Should receive an xml
 		//TODO: Remove comment below
 		
-		String uri = "http://localhost:8080/FoundITServer/jobappreviewassign/reviewer/"+u.getId();
+		String uri = "http://localhost:8080/FoundITServer/jobappreviewassign/reviewer/3"; //u.getId()
 		URL url = new URL(uri);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		connection.setRequestProperty("Accept", "application/xml");
+		connection.setRequestProperty("SecurityKey", "i-am-foundit");
+		connection.setRequestProperty("ShortKey", "app-reviewer");
 		
 		//Go through job application and get applicants			
 		InputStream xml = connection.getInputStream();
@@ -226,7 +228,7 @@ public class ListApplicantsServlet extends HttpServlet{
 	            	job.setCoverLetter(eElement.getElementsByTagName("coverLetter").item(0).getTextContent());
 	            	job.setResume(eElement.getElementsByTagName("resume").item(0).getTextContent());
 	            	job.setStatus(eElement.getElementsByTagName("status").item(0).getTextContent());
-	            	job.setJobPostId(eElement.getElementsByTagName("jobPostId").item(0).getTextContent());
+	            	//job.setJobPostId(eElement.getElementsByTagName("jobPostId").item(0).getTextContent());
 	            	
 	            	String userid = eElement.getElementsByTagName("userProfileId").item(0).getTextContent();
 	            	
@@ -263,6 +265,8 @@ public class ListApplicantsServlet extends HttpServlet{
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				connection.setRequestMethod("GET");
 				connection.setRequestProperty("Accept", "application/xml");
+				connection.setRequestProperty("SecurityKey", "i-am-foundit");
+				connection.setRequestProperty("ShortKey", "app-reviewer");
 				
 				//Go through job application and get applicants			
 				InputStream xml = connection.getInputStream();
@@ -320,12 +324,12 @@ public class ListApplicantsServlet extends HttpServlet{
 
 	            	Element eElement = (Element) nNode;
 	            	
-	            	System.out.println(eElement.getElementsByTagName("currentPosition").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("education").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("id").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("name").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("pastExperience").item(0).getTextContent());
-	            	System.out.println(eElement.getElementsByTagName("professionalSkills").item(0).getTextContent());
+	            	//System.out.println(eElement.getElementsByTagName("currentPosition").item(0).getTextContent());
+	            	//System.out.println(eElement.getElementsByTagName("education").item(0).getTextContent());
+	            	//System.out.println(eElement.getElementsByTagName("id").item(0).getTextContent());
+	            	//System.out.println(eElement.getElementsByTagName("name").item(0).getTextContent());
+	            	//System.out.println(eElement.getElementsByTagName("pastExperience").item(0).getTextContent());
+	            	//System.out.println(eElement.getElementsByTagName("professionalSkills").item(0).getTextContent());
 
 	            	newUser.setCurrentPosition(eElement.getElementsByTagName("currentPosition").item(0).getTextContent());
 	            	newUser.setEducation(eElement.getElementsByTagName("education").item(0).getTextContent());

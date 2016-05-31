@@ -46,6 +46,7 @@ public class ApplicationServlet extends HttpServlet {
 		if(request.getParameterMap().containsKey("action")){
 			String action = request.getParameter("action");
 			if(action.equals("apply")){
+				RestServices rs = new RestServices();
 				String jobid = request.getParameter("jobid");
 			    String query = "jobpostid="+URLEncoder.encode(jobid,"UTF-8");
 			    query += "&";
@@ -55,21 +56,11 @@ public class ApplicationServlet extends HttpServlet {
 			    query += "&";
 			    query += "resume="+URLEncoder.encode("resume.pdf","UTF-8");
 			    System.out.println(query);
-			    String uri = 
-					    "http://localhost:8080/FoundITServer/jobapplication/";
-					URL url = new URL(uri);
-					HttpURLConnection connection = 
-					    (HttpURLConnection) url.openConnection();
-					connection.setRequestMethod("POST");
-					connection.setDoOutput(true);
-					connection.setDoInput(true);
-					connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-					connection.setRequestProperty("Accept", "application/xml");	
-					DataOutputStream os = new DataOutputStream(connection.getOutputStream());
-					os.writeBytes(query);
-					os.flush();
-					os.close();
-					InputStream xml = connection.getInputStream();	
+			    String uri = "/jobapplication";
+					HttpURLConnection connection = rs.doPost(query, uri, user.getUserType());
+					if(connection.getResponseCode() == 200 || connection.getResponseCode()==201){
+						InputStream xml = connection.getInputStream();	
+					}
 					r = request.getRequestDispatcher("/WEB-INF/jsps/application.jsp");
 					r.forward(request, response);
 					return;
@@ -78,7 +69,7 @@ public class ApplicationServlet extends HttpServlet {
 				
 				String appID = request.getParameter("applicationID");
 				String uri = "/jobapplication";
-				String query = appID;
+				String query = "/"+appID;
 				RestServices rs = new RestServices();
 				HttpURLConnection connection = rs.doDelete(query, uri, user.getUserType(), true) ;
 				if(connection.getResponseCode() == 200){
@@ -91,13 +82,10 @@ public class ApplicationServlet extends HttpServlet {
 		}else{
 			Vector<ApplicationDisplay> myApplications = new Vector<ApplicationDisplay>();
 			User u = (User)mySession.getAttribute("user");
-			String uri = 
-				    "http://localhost:8080/FoundITServer/jobapplication/search?userprofileid="+u.getId();
-				URL url = new URL(uri);
-				HttpURLConnection connection = 
-				    (HttpURLConnection) url.openConnection();
-				connection.setRequestMethod("GET");
-				connection.setRequestProperty("Accept", "application/xml");				
+			String uri = "/jobapplication";
+			String query = "/search?userprofileid="+u.getId();
+				RestServices rs = new RestServices();
+				HttpURLConnection connection = rs.doGet(query, uri, u.getUserType(), true);
 				try {
 					JAXBContext jc;
 					jc = JAXBContext.newInstance(JobApplications.class);
@@ -108,30 +96,21 @@ public class ApplicationServlet extends HttpServlet {
 					request.setAttribute("myApplications", resultList);					
 					connection.disconnect();	
 					for(JobApplication j:resultList){
-						uri = 
-							    "http://localhost:8080/FoundITServer/jobposting/"+j.getJobPostId();
-							url = new URL(uri);
-							connection = 
-							    (HttpURLConnection) url.openConnection();
-							connection.setRequestMethod("GET");
-							connection.setRequestProperty("Accept", "application/xml");								
+						uri = "/jobposting";
+						query = "/"+j.getJobPostId();
+						connection = rs.doGet(query, uri, u.getUserType(), true);											
 							xml = connection.getInputStream();							
 							jc = JAXBContext.newInstance(JobPosting.class);							
 							JobPosting jp = (JobPosting) jc.createUnmarshaller().unmarshal(xml);
 							String jobid = jp.getId();
 							String title = jp.getTitle();
 							String companyId =  jp.getCompanyProfileId();
-							System.out.println("Got job post info" +jobid+" "+title+" " +companyId);
+							System.out.println("Got job post info" +jobid+" "+title+" " +companyId);							
 							connection.disconnect();
-							uri = 
-								    "http://localhost:8080/FoundITServer/companyprofile/"+companyId;
-								url = new URL(uri);
-								connection = 
-								    (HttpURLConnection) url.openConnection();
-								connection.setRequestMethod("GET");
-								connection.setRequestProperty("Accept", "application/xml");								
-								xml = connection.getInputStream();
-								
+							uri = "/companyprofile";
+							query = "/"+jp.getCompanyProfileId();	
+							connection = rs.doGet(query, uri, u.getUserType(), true);		
+								xml = connection.getInputStream();								
 								jc = JAXBContext.newInstance(CompanyProfile.class);
 								CompanyProfile cp = (CompanyProfile) jc.createUnmarshaller().unmarshal(xml);
 								System.out.println("Got company info");

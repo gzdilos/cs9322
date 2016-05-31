@@ -69,15 +69,21 @@ public class ProfileServlet extends HttpServlet {
 				    (HttpURLConnection) url.openConnection();
 				connection.setRequestMethod("PUT");
 				connection.setRequestProperty("Content-Type", "application/xml");
+				connection.setRequestProperty("SecurityKey", "i-am-foundit");
+				connection.setRequestProperty("ShortKey", "app-"+u.getUserType());
 				connection.setDoOutput(true);
+				connection.setDoInput(true);
 				UserProfile user = new UserProfile();
 				CompanyProfile company = new CompanyProfile();
+				
 				if(userType.equals("candidate")){
+					user = (UserProfile) mySession.getAttribute("profile");
 					user.setCurrentPosition(request.getParameter("currentPosition"));
 					user.setEducation(request.getParameter("education"));
 					user.setPastExperience(request.getParameter("pastExperience"));
 					user.setProfessionalSkills(request.getParameter("professionalSkills"));
 				}else if(userType.equals("manager")){
+					company = (CompanyProfile) mySession.getAttribute("profile");							
 					company.setName(request.getParameter("name"));
 					company.setAddress(request.getParameter("address"));
 					company.setIndustryType(request.getParameter("industrytype"));
@@ -91,16 +97,16 @@ public class ProfileServlet extends HttpServlet {
 						jc = JAXBContext.newInstance(UserProfile.class);
 						Marshaller m = jc.createMarshaller();					
 						m.marshal(user,os);
+						System.out.println(connection.getResponseCode());
 					}else if(userType.equals("manager")){
 						jc = JAXBContext.newInstance(CompanyProfile.class);
 						Marshaller m = jc.createMarshaller();					
-						m.marshal(user,os);
+						m.marshal(company,os);
 					}else{
 						response.sendRedirect("home.jsp");
 						return;
 					}
-					os.flush();
-					connection.getResponseCode();
+					os.flush();					
 			        connection.disconnect();					
 				} catch (JAXBException e) {
 					// TODO Auto-generated catch block
@@ -112,40 +118,35 @@ public class ProfileServlet extends HttpServlet {
 			}
 		}
 		if(u != null){
-			String updateUrl;
+			RestServices rs = new RestServices();
+			String uri;
 			request.setAttribute("userType", userType);
 			if(userType.equals("candidate")){
-				updateUrl = "userprofile";
+				uri = "/userprofile";
 			}else if (userType.equals("manager")){
-				updateUrl = "companyprofile";
+				uri = "/companyprofile";
 			} else {
 				response.sendRedirect("home.jsp");
 				return;
 			}
-			String uri = 
-			    "http://localhost:8080/FoundITServer/"+updateUrl+"/"+u.getId();
-			URL url = new URL(uri);
-			HttpURLConnection connection = 
-			    (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/xml");					
-		
+			String query = "/"+u.getId();
+			HttpURLConnection connection = rs.doGet(query, uri, u.getUserType(), true);	
 			try {
 				JAXBContext jc;
-					if(userType.equals("candidate")){
-					jc = JAXBContext.newInstance(UserProfile.class);
-					InputStream xml = connection.getInputStream();		
-					
-					UserProfile profile = 
-					    (UserProfile) jc.createUnmarshaller().unmarshal(xml);
-					mySession.setAttribute("profile", profile);
-				}else if(userType.equals("manager")){
-					jc = JAXBContext.newInstance(CompanyProfile.class);
-					InputStream xml = connection.getInputStream();		
-					
-					CompanyProfile profile = 
-					    (CompanyProfile) jc.createUnmarshaller().unmarshal(xml);
-					mySession.setAttribute("companyprofile", profile);		
+					if(userType.equals("candidate")){	
+						jc = JAXBContext.newInstance(UserProfile.class);
+						InputStream xml = connection.getInputStream();		
+						
+						UserProfile profile = 
+						    (UserProfile) jc.createUnmarshaller().unmarshal(xml);
+						mySession.setAttribute("profile", profile);
+					}else if(userType.equals("manager")){
+						jc = JAXBContext.newInstance(CompanyProfile.class);
+						InputStream xml = connection.getInputStream();		
+						
+						CompanyProfile profile = 
+						    (CompanyProfile) jc.createUnmarshaller().unmarshal(xml);
+						mySession.setAttribute("companyprofile", profile);		
 				}
 				connection.disconnect();				
 				r = getServletContext().getRequestDispatcher( "/WEB-INF/jsps/profile.jsp");

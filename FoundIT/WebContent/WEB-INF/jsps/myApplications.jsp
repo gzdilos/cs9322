@@ -80,7 +80,7 @@
 			</form>
 			<form method="get" action="applications" >
 			<input type="hidden" id="applicationID" name="applicationID" value=${application.applicationId}>	
-			<button name="action" value ="update" type="submit" class="btn btn-primary btn-lg btn-block">Update</a>
+			<button class="btn btn-primary btn-lg btn-block">Update</a>
 			</button>
 			</form>
    		</c:when>

@@ -33,7 +33,7 @@ hgroup h2.lead { font: normal normal 1.125em "Roboto",Arial,Verdana,sans-serif; 
 </head>
 <body>
 <div class="col-md-9" >	
-<c:if test = "${empty resquestScope.results}">
+<c:if test = "${resquestScope.results}">
 <h1>No jobs matched your search terms</h1>
 </c:if>
 <c:forEach var="result" items="${requestScope.results}">	

@@ -27,7 +27,7 @@ public class HiringTeam {
 	}
 	public HiringTeam(String id) {
 		super();
-		this.link = "http://localhost:8080/RestfulJobService/hiringteam/" + id;
+		this.link = "http://localhost:8080/FoundITServer/hiringteam/" + id;
 	}
 	
 	public HiringTeam(String id, String companyProfileId,
@@ -37,7 +37,7 @@ public class HiringTeam {
 		this.companyProfileId = companyProfileId;
 		this.companyProfileLnk = new CompanyProfile(this.companyProfileId);
 		this.teamMembers = teamMembers;
-		this.link = "http://localhost:8080/RestfulJobService/hiringteam/" + this.id;
+		this.link = "http://localhost:8080/FoundITServer/hiringteam/" + this.id;
 	}
 
 	public String getId() {
@@ -82,7 +82,8 @@ public class HiringTeam {
 
 	public void setLink(String link) {
 		this.link = link;
-		this.id = link.substring(link.length()-1);
+		int startId = link.lastIndexOf('/') + 1;
+		this.id = link.substring(startId,link.length());
 	}
 
 	@XmlAttribute(name = "rel")

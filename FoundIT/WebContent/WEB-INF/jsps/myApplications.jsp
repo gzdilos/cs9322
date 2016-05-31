@@ -72,12 +72,13 @@
    		<td>
    		<c:choose>
    		<c:when test="${application.jobpostingStatus == 'open'}">
-   			<form method="get" action="application" >
+   			<form method="get" action="applications" >
 			<input type="hidden" id="applicationID" name="applicationID" value=${application.applicationId}>	
 			<button name="action" value ="withdraw" type="submit" class="btn btn-primary btn-lg btn-block">Withdraw</a>
 			</button>
+			<p></p>
 			</form>
-			<form method="get" action="application" >
+			<form method="get" action="applications" >
 			<input type="hidden" id="applicationID" name="applicationID" value=${application.applicationId}>	
 			<button name="action" value ="update" type="submit" class="btn btn-primary btn-lg btn-block">Update</a>
 			</button>

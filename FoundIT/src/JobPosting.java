@@ -1,9 +1,10 @@
 
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="jobPosting")
+@XmlRootElement
 public class JobPosting {
     //job post status
     public static final String STATUS_OPEN = "open";
@@ -36,7 +37,7 @@ public class JobPosting {
 	
 	public JobPosting(String id) {
 		super();
-		this.link = "http://localhost:8080/RestfulJobService/jobposting/" + id;
+		this.link = "http://localhost:8080/FoundITServer/jobposting/" + id;
 	}
 	
 
@@ -54,7 +55,7 @@ public class JobPosting {
 		this.location = location;
 		this.status = STATUS_OPEN;
 		this.archived = ARCHIVED_FALSE;
-		this.link = "http://localhost:8080/RestfulJobService/jobposting/" + this.id;
+		this.link = "http://localhost:8080/FoundITServer/jobposting/" + this.id;
 	}
 
 	public String getId() {
@@ -130,7 +131,8 @@ public class JobPosting {
 
 	public void setLink(String link) {
 		this.link = link;
-		this.id = link.substring(link.length()-1);
+		int startId = link.lastIndexOf('/') + 1;
+		this.id = link.substring(startId,link.length());
 	}
 
 	@XmlAttribute(name = "rel")

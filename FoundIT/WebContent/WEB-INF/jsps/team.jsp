@@ -76,10 +76,10 @@
  <div class="col-sm-offset-3 col-sm-6">
  <form method="get" action="manager">
  <p></p>
- 	<c:if test="{empty requestScope.hiringTeam}">
+ 	<c:if test="${empty requestScope.hiringTeam}">
  	<button type="submit" name="addTeam" class="btn btn-primary btn-lg btn-block">Add Hiring Team</button>
  	</c:if>
- 	<c:if test="not empty requestScope.hiringTeam}">
+ 	<c:if test="${not empty requestScope.hiringTeam}">
  	<button type="submit" name="changeTeam" class="btn btn-primary btn-lg btn-block">Change Hiring Team</button>
  	<button type="submit" name="removeTeam" class="btn btn-primary btn-lg btn-block">Drop Hiring Team</button>
  	</c:if>

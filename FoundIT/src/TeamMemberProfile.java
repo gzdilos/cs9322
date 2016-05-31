@@ -16,7 +16,7 @@ public class TeamMemberProfile {
 	}
 	public TeamMemberProfile(String id) {
 		super();
-		this.link = "http://localhost:8080/RestfulJobService/teammemberprofile/" + id;
+		this.link = "http://localhost:8080/FoundITServer/teammemberprofile/" + id;
 	}
 	
 	public TeamMemberProfile(String id, String username, String password,
@@ -26,7 +26,7 @@ public class TeamMemberProfile {
 		this.username = username;
 		this.password = password;
 		this.professionalSkills = professionalSkills;
-		this.link = "http://localhost:8080/RestfulJobService/teammemberprofile/" + this.id;
+		this.link = "http://localhost:8080/FoundITServer/teammemberprofile/" + this.id;
 	}
 
 	public String getId() {
@@ -68,7 +68,8 @@ public class TeamMemberProfile {
 
 	public void setLink(String link) {
 		this.link = link;
-		this.id = link.substring(link.length()-1);
+		int startId = link.lastIndexOf('/') + 1;
+		this.id = link.substring(startId,link.length());
 	}
 
 	@XmlAttribute(name = "rel")

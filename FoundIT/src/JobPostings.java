@@ -1,22 +1,34 @@
-import java.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "jobPostings")
-public class JobPostings extends Vector{	
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class JobPostings {
 	@XmlElement(name = "jobPosting")
-	Vector<JobPosting> jobPosting;	
+	List<JobPosting> jobPostings = new ArrayList<JobPosting>();
 	
-	public Vector<JobPosting> getJobPostings() {
-		return jobPosting;
+	public JobPostings(){
+		
+	}
+	
+	public JobPostings(List<JobPosting> jobPostings) {
+		super();
+		this.jobPostings = jobPostings;
 	}
 
-	public void setJobPosting(Vector<JobPosting> JobPostings) {
-		this.jobPosting = JobPostings;
+	public List<JobPosting> getJobPostings() {
+		return jobPostings;
 	}
-}
-
-
+	
+	public void setJobPostings(List<JobPosting> jobPostings) {
+		this.jobPostings = jobPostings;
+	}
+	   
+ 
+}  

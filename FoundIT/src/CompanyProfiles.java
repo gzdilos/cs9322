@@ -1,7 +1,6 @@
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,15 +9,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CompanyProfiles extends Vector{
+public class CompanyProfiles {
 	@XmlElement(name = "CompanyProfile")
-	Vector<CompanyProfile> companyProfiles;
+	List<CompanyProfile> companyProfiles = new ArrayList<CompanyProfile>();
 
 	public CompanyProfiles() {
 		
 	}
 	
-	public CompanyProfiles(Vector<CompanyProfile> companyProfiles) {
+	public CompanyProfiles(List<CompanyProfile> companyProfiles) {
 		super();
 		this.companyProfiles = companyProfiles;
 	}
@@ -27,7 +26,7 @@ public class CompanyProfiles extends Vector{
 		return companyProfiles;
 	}
 	
-	public void setCompanyProfiles(Vector<CompanyProfile> companyProfiles) {
+	public void setCompanyProfiles(List<CompanyProfile> companyProfiles) {
 		this.companyProfiles = companyProfiles;
 	}
 	   

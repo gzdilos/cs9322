@@ -78,13 +78,18 @@
    			${job.status}
    		</td>
    		<td>
-   			Action
+   			<form method="get" action="manager" >
+			<input type="hidden" id="applicationID" name="applicationID" value=${application.applicationId}>	
+			<button name="action" value ="viewApplicants" type="submit" class="btn btn-primary btn-lg btn-block">Withdraw</a>
+			</button>
    		</td>  
    	</tr>			
    	</c:forEach>   
    </table>	
    </c:otherwise>
    </c:choose>
+ 
+
  <div class="col-sm-offset-3 col-sm-6">
  <form method="get" action="manager">
  <p></p>
@@ -92,4 +97,5 @@
  </form>
  </div>  
 </body>
+
 </html>

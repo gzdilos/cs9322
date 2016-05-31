@@ -1,9 +1,11 @@
 
+
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="JobApplication")
+@XmlRootElement
 public class JobApplication {
 	
    //job app status
@@ -12,6 +14,8 @@ public class JobApplication {
     public static final String STATUS_NOT_SHORTLISTED = "not-shortlisted";
     public static final String STATUS_ACCEPTED = "accepted-invitation";
     public static final String STATUS_REJECTED = "rejected-invitation";
+    public static final String STATUS_CHECK_SUCCESS = "check-success";
+    public static final String STATUS_CHECK_FAIL = "check-fail";
     //archived status
     public static final String ARCHIVED_TRUE = "T";
     public static final String ARCHIVED_FALSE = "F";
@@ -39,8 +43,21 @@ public class JobApplication {
     
     public JobApplication(String id) {
 		super();
-		this.link = "http://localhost:8080/RestfulJobService/jobapplication/" + id;
+		this.link = "http://localhost:8080/FoundITServer/jobapplication/" + id;
 	}
+    
+    public JobApplication(String id, String jobPostId,
+ 			String userProfileId, String coverLetter, String resume, String status) {
+ 		super();
+ 		this.id = id;
+ 		this.jobPostId = jobPostId;
+ 		this.userProfileId = userProfileId;
+ 		this.coverLetter = coverLetter;
+ 		this.resume = resume;
+ 		this.status = status;
+ 		this.archived = ARCHIVED_FALSE;
+ 		this.link = "http://localhost:8080/FoundITServer/jobapplication/" + this.id;
+ 	}
     
     public JobApplication(String id, String jobPostId,
 			String userProfileId, String coverLetter, String resume) {
@@ -52,7 +69,7 @@ public class JobApplication {
 		this.resume = resume;
 		this.status = STATUS_SUBMITTED;
 		this.archived = ARCHIVED_FALSE;
-		this.link = "http://localhost:8080/RestfulJobService/jobapplication/" + this.id;
+		this.link = "http://localhost:8080/FoundITServer/jobapplication/" + this.id;
 	}
 
 	public String getId() {
@@ -122,6 +139,8 @@ public class JobApplication {
 
 	public void setLink(String link) {
 		this.link = link;
+		int startId = link.lastIndexOf('/') + 1;
+		this.id = link.substring(startId,link.length());
 	}
 
 	@XmlAttribute(name = "rel")
@@ -133,7 +152,33 @@ public class JobApplication {
 		this.rel = rel;
 	}
 
+	@XmlElement(name = "jobPosting")
+	public JobPosting getJobPostLink() {
+		if(this.jobPostId == null)
+			return null;
+		
+		this.jobPostLink = new JobPosting(this.jobPostId);
+		return this.jobPostLink;	
+	}
 
+	public void setJobPostLink(JobPosting jobPostLink) {
+		this.jobPostLink = jobPostLink;
+		this.jobPostId = jobPostLink.getId();
+	}
+	
+	@XmlElement(name = "userProfile")
+	public UserProfile getUserProfileLink() {
+		if(this.userProfileId == null)
+			return null;
+		
+		this.userProfileLink = new UserProfile(this.userProfileId);
+		return userProfileLink;
+	}
+
+	public void setUserProfileLink(UserProfile userProfileLink) {
+		this.userProfileLink = userProfileLink;
+		this.userProfileId = userProfileLink.getId();
+	}
     
 
 }

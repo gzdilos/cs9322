@@ -41,7 +41,7 @@ public class RestServices {
 			HttpURLConnection connection = 
 			    (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("POST");
-			System.out.println("doing get");
+			System.out.println("doing post");
 			connection.setDoOutput(true);
 			connection.setDoInput(true);
 			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");	

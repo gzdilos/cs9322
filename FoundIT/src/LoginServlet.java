@@ -70,6 +70,7 @@ public class LoginServlet extends HttpServlet {
 			}
 			if(request.getParameterMap().containsKey("action")){
 				String action = request.getParameter("action");
+				System.out.println(action);
 					if(action.equals("logout")){
 						mySession.invalidate();
 						response.sendRedirect("home.jsp");
@@ -88,6 +89,7 @@ public class LoginServlet extends HttpServlet {
 							System.out.println("Login Success");
 							mySession.setAttribute("loggedIn", true);
 							mySession.setAttribute("user", thisUser);
+							mySession.setAttribute("userList", userList);
 							if(thisUser.getUserType().equals("candidate")){
 								RequestDispatcher rd = request.getRequestDispatcher("/search");
 								rd.forward(request, response);
@@ -105,46 +107,7 @@ public class LoginServlet extends HttpServlet {
 								rd.forward(request, response);
 								return;
 							}
-						} else if(action.equals("addReviewer")){
-							User user = (User) mySession.getAttribute("user");
-							String query="/";
-							String uri = "/teammemberprofile";
-							String username = request.getParameter("username");
-							String password = request.getParameter("password");
-							String professionalskills = request.getParameter("professionalskills");
-							query += "username="+username;
-							query += "&password="+password;
-							query += "&professionalskills="+professionalskills;
-							User newUser = new User();
-							RestServices rs = new RestServices();
-							HttpURLConnection connection = rs.doPost(query, uri,user.getUserType() );							
-							//read the response
-							if(connection.getResponseCode() == 200){
-								try {
-									JAXBContext jc;								
-									InputStream xml = connection.getInputStream();		
-										jc = JAXBContext.newInstance(TeamMemberProfile.class);
-										System.out.println("reading xml response for user");
-										TeamMemberProfile profile = 
-										    (TeamMemberProfile) jc.createUnmarshaller().unmarshal(xml);
-										connection.disconnect();
-										newUser.setId(profile.getId());
-										newUser.setPassword(password);
-										newUser.setUsername(username);
-										newUser.setUserType("reviewer");
-										userList.add(newUser);
-										updateUserList(userList);
-										r = request.getRequestDispatcher("/manager?team");
-										r.forward(request,response);
-										return;
-								}catch (JAXBException e) {
-									
-								}
-							}else{
-								System.out.println("Failed creating new team member");
-							}
-							
-						}else{
+						} else{
 							System.out.println("Found no user");
 							RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
 							rd.forward(request, response);
@@ -193,7 +156,7 @@ public class LoginServlet extends HttpServlet {
 						
 						CompanyProfile company = new CompanyProfile();
 						UserProfile userProfile = new UserProfile();
-						String query="/";
+						String query="";
 						
 						if(userType.equals("manager")){
 						    query += "name="+ request.getParameter("name");
@@ -244,6 +207,7 @@ public class LoginServlet extends HttpServlet {
 								updateUserList(userList);
 								mySession.setAttribute("loggedIn", true);
 								mySession.setAttribute("user", newUser);
+								mySession.setAttribute("userList", userList);
 								if(newUser.getUserType().equals("candidate")){
 									RequestDispatcher rd = request.getRequestDispatcher("/search");
 									rd.forward(request, response);
@@ -274,6 +238,7 @@ public class LoginServlet extends HttpServlet {
 						int index = userList.indexOf(thisUser);
 						userList.set(index, thisUser);
 						updateUserList(userList);
+						mySession.setAttribute("userList", userList);
 					}else if(action.equals("removeJob")){
 						System.out.println("removing"+request.getParameter("jobID"));
 						User thisUser =(User) mySession.getAttribute("user");
@@ -281,7 +246,59 @@ public class LoginServlet extends HttpServlet {
 						int index = userList.indexOf(thisUser);
 						userList.set(index, thisUser);
 						updateUserList(userList);
+						mySession.setAttribute("userList", userList);
 						response.sendRedirect("search?saved");
+						return;
+					}else if(action.equals("addReviewer")){
+						User user = (User) mySession.getAttribute("user");
+						String query="";
+						String uri = "/teammemberprofile";
+						String username = request.getParameter("username");
+						String password = request.getParameter("password");
+						String professionalskills = request.getParameter("professionalskills");
+						query += "username="+username;
+						query += "&password="+password;
+						query += "&professionalskills="+professionalskills;
+						System.out.println(query);
+						User newUser = new User();
+						RestServices rs = new RestServices();
+						HttpURLConnection connection = rs.doPost(query, uri,user.getUserType());	
+						System.out.println(user.getUserType());
+						//read the response
+						if(connection.getResponseCode() == 201){
+							try {
+								JAXBContext jc;								
+								InputStream xml = connection.getInputStream();		
+									jc = JAXBContext.newInstance(TeamMemberProfile.class);
+									System.out.println("reading xml response for user");
+									TeamMemberProfile profile = 
+									    (TeamMemberProfile) jc.createUnmarshaller().unmarshal(xml);
+									connection.disconnect();
+									newUser.setId(profile.getId());
+									newUser.setPassword(password);
+									newUser.setUsername(username);
+									newUser.setUserType("reviewer");
+									userList.add(newUser);
+									updateUserList(userList);
+									mySession.setAttribute("userList", userList);
+									request.setAttribute("createSuccess", true);
+									System.out.println("first return");
+									r = request.getRequestDispatcher("/manager?team=");
+									r.forward(request,response);
+									return;
+							}catch (JAXBException e) {
+							}
+						}else{
+							System.out.println("Failed creating new team member");
+							System.out.println(connection.getResponseCode());
+							connection.disconnect();
+							
+						}
+
+						System.out.println("3rd return");
+						request.setAttribute("createError", true);
+						r = request.getRequestDispatcher("/manager?team=");
+						r.forward(request,response);
 						return;
 					}
 			}
@@ -333,7 +350,6 @@ public class LoginServlet extends HttpServlet {
 		ServletContext context = getServletContext();
 		String xmlPath = context.getRealPath("/WEB-INF/userList.xml");
 		File xmlFile = new File(xmlPath);
-		
 		jc = JAXBContext.newInstance(userList.class);
 		Marshaller m = jc.createMarshaller();
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

@@ -78,7 +78,7 @@ public class ApplicationServlet extends HttpServlet {
 				
 				String appID = request.getParameter("applicationID");
 				String uri = "/jobapplication";
-				String query = "/"+appID;
+				String query = appID;
 				RestServices rs = new RestServices();
 				HttpURLConnection connection = rs.doDelete(query, uri, user.getUserType(), true) ;
 				if(connection.getResponseCode() == 200){

@@ -3,6 +3,7 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Vector;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -20,7 +21,7 @@ import javax.xml.bind.JAXBException;
 @WebServlet("/manager")
 public class ManagerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+	
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -38,7 +39,7 @@ public class ManagerServlet extends HttpServlet {
 		User user = (User) mySession.getAttribute("user");
 		RequestDispatcher rd = request.getRequestDispatcher("");
 		String uri = "";
-		String query = "/";
+		String query = "";
 		if(request.getParameterMap().containsKey("action")){
 			String action = request.getParameter("action");
 			if(action.equals("add")){
@@ -63,8 +64,83 @@ public class ManagerServlet extends HttpServlet {
 					} catch (JAXBException e) {
 						System.out.println("Job Creation Failed");
 					}				
+				}else{
+					request.setAttribute("error", true);
 				}
 				
+			}
+			if(action.equals("addTeam")){
+				User member1 = new User();
+				User member2 = new User();
+				User member3 = new User();
+				User member4 = new User();
+				User member5 = new User();
+				boolean membersValid = true;			       
+				Vector<User> userList =  (Vector<User>) mySession.getAttribute("userList");
+				System.out.println(userList.size()+"size of userList");
+				member1.setUsername(request.getParameter("username1"));
+				member1.setPassword(request.getParameter("password1"));
+				if(userList.contains(member1)){
+					member1 = userList.get(userList.indexOf(member1));
+				} else {
+					membersValid = false;
+				}
+				
+				member2.setUsername(request.getParameter("username2"));
+				member2.setPassword(request.getParameter("password2"));
+				if(userList.contains(member2)){
+					member2 = userList.get(userList.indexOf(member2));
+				} else {
+					membersValid = false;
+				}
+				
+				member3.setUsername(request.getParameter("username3"));
+				member3.setPassword(request.getParameter("password3"));
+				if(userList.contains(member2)){
+					member3 = userList.get(userList.indexOf(member3));
+				} else {
+					membersValid = false;
+				}
+				
+				member4.setUsername(request.getParameter("username4"));
+				member4.setPassword(request.getParameter("password4"));
+				if(userList.contains(member2)){
+					member4 = userList.get(userList.indexOf(member4));
+				} else {
+					membersValid = false;
+				}
+				
+				member5.setUsername(request.getParameter("username5"));
+				member5.setPassword(request.getParameter("password5"));
+				if(userList.contains(member2)){
+					member5 = userList.get(userList.indexOf(member5));
+				} else {
+					membersValid = false;
+				}
+				
+				if(membersValid){
+					uri = "/hiringteam";
+					RestServices rs = new RestServices();
+					query += "companyprofileid="+user.getId();
+					query +="&member1id="+member1.getId();
+					query +="&member2id="+member2.getId();
+					query +="&member3id="+member3.getId();
+					query +="&member4id="+member4.getId();
+					query +="&member5id="+member5.getId();
+					HttpURLConnection connection = rs.doPost(query, uri, user.getUserType());
+					if(connection.getResponseCode() == 200 || connection.getResponseCode() == 201 ){
+							rd = request.getRequestDispatcher("/Manager/?team=");
+							rd.forward(request, response);
+							return;
+										
+					}else{
+						request.setAttribute("error", true);
+					}
+					
+				}
+				rd = request.getRequestDispatcher("/Manager/?team=");
+				rd.forward(request, response);
+				return;
 			}
 		}
 		if(request.getParameterMap().containsKey("add")){
@@ -73,33 +149,41 @@ public class ManagerServlet extends HttpServlet {
 			return;
 		}
 		if(request.getParameterMap().containsKey("team")){
-			uri = "/hiringteam/";
-			RestServices rs = new RestServices();
-			query = "/";
-			query = user.getId();
-			HttpURLConnection connection = rs.doPost(query, uri, user.getUserType());
+			uri = "/hiringteam";
+			RestServices rs = new RestServices();			
+			query = "/"+user.getId();
+			HttpURLConnection connection = rs.doGet(query, uri, user.getUserType(),true);
 			if(connection.getResponseCode() == 200){
 				JAXBContext jc;								
 				InputStream xml = connection.getInputStream();
 				try {
-					jc = JAXBContext.newInstance(JobPosting.class);
-					HiringTeam team = 
-						    (HiringTeam) jc.createUnmarshaller().unmarshal(xml);
-					connection.disconnect();
-					request.setAttribute("hiringTeam", team);
+					jc = JAXBContext.newInstance(HiringTeamStore.class);
+					HiringTeamStore team = 
+						    (HiringTeamStore) jc.createUnmarshaller().unmarshal(xml);
+					System.out.println("Team ID "+team.getId());
+					System.out.println("Member1 ID "+team.getMember1Link().getId());
+					team.getMember2id();
+					team.getMember3id();
+					team.getMember4id();
+					team.getMember5id();
+					
+					connection.disconnect();			
 					rd = request.getRequestDispatcher("/WEB-INF/jsps/team.jsp");
 					rd.forward(request, response);
 					return;
 				} catch (JAXBException e) {
 					System.out.println("No hiring Teams");
+					System.out.println(e.toString());
 				}				
+			}else{
+				System.out.println("Cant find hiring team");
 			}
 			
 			rd = request.getRequestDispatcher("/WEB-INF/jsps/team.jsp");
 			rd.forward(request, response);
 			return;
 		}if(request.getParameterMap().containsKey("addTeam")){
-			//post
+			request.setAttribute("action", "addTeam");
 			rd = request.getRequestDispatcher("/WEB-INF/jsps/modifyteam.jsp");
 			rd.forward(request, response);
 			return;

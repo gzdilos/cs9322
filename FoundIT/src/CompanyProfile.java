@@ -19,7 +19,7 @@ public class CompanyProfile {
 
 	public CompanyProfile(String id) {
 		super();
-		this.link = "http://localhost:8080/RestfulJobService/companyprofile/" + id;
+		this.link = "http://localhost:8080/FoundITServer/companyprofile/" + id;
 	}
 
 
@@ -32,7 +32,7 @@ public class CompanyProfile {
 		this.website = website;
 		this.industryType = industryType;
 		this.address = address;
-		this.link = "http://localhost:8080/RestfulJobService/companyprofile/" + this.id;
+		this.link = "http://localhost:8080/FoundITServer/companyprofile/" + this.id;
 	}
 
 
@@ -81,7 +81,8 @@ public class CompanyProfile {
 	public void setLink(String link) {
 		this.link = link;
 		//use this link info to update id
-		this.id = link.substring(link.length()-1);
+		int startId = link.lastIndexOf('/') + 1;
+		this.id = link.substring(startId,link.length());
 	}
 	
 	@XmlAttribute(name = "rel")

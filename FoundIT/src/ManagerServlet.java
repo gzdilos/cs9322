@@ -156,25 +156,7 @@ public class ManagerServlet extends HttpServlet {
 			if(connection.getResponseCode() == 200){
 				JAXBContext jc;								
 				InputStream xml = connection.getInputStream();
-				try {
-					jc = JAXBContext.newInstance(HiringTeamStore.class);
-					HiringTeamStore team = 
-						    (HiringTeamStore) jc.createUnmarshaller().unmarshal(xml);
-					System.out.println("Team ID "+team.getId());
-					System.out.println("Member1 ID "+team.getMember1Link().getId());
-					team.getMember2id();
-					team.getMember3id();
-					team.getMember4id();
-					team.getMember5id();
 					
-					connection.disconnect();			
-					rd = request.getRequestDispatcher("/WEB-INF/jsps/team.jsp");
-					rd.forward(request, response);
-					return;
-				} catch (JAXBException e) {
-					System.out.println("No hiring Teams");
-					System.out.println(e.toString());
-				}				
 			}else{
 				System.out.println("Cant find hiring team");
 			}

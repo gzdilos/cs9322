@@ -18,6 +18,8 @@ public class UserProfile {
 	}
 
 	private String name;
+	private String address;
+	private String licenseNumber;
 	private String currentPosition;
 	private String education;
     private String pastExperience;
@@ -62,5 +64,19 @@ public class UserProfile {
 		this.id = id;
 	}
     
-    
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getLicenseNumber() {
+		return licenseNumber;
+	}
+
+	public void setLicenseNumber(String licenseNumber) {
+		this.licenseNumber = licenseNumber;
+	}
 }

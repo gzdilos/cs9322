@@ -78,6 +78,8 @@ public class LoginServlet extends HttpServlet {
 						User newLogin = new User();
 						newLogin.setUsername(request.getParameter("login_username"));
 						newLogin.setPassword(request.getParameter("login_password"));
+						System.out.println(newLogin.username + " " + newLogin.password);
+						System.out.println("We are here");
 						if(userList.contains(newLogin)){
 							System.out.println(userList.size());
 							System.out.println(userList.indexOf(newLogin));
@@ -143,6 +145,7 @@ public class LoginServlet extends HttpServlet {
 							}
 							
 						}else{
+							System.out.println("Found no user");
 							RequestDispatcher rd = request.getRequestDispatcher("home.jsp");
 							rd.forward(request, response);
 							return;
@@ -250,6 +253,7 @@ public class LoginServlet extends HttpServlet {
 									rd.forward(request, response);
 									return;
 								}else if(newUser.getUserType().equals("reviewer")){
+									System.out.println("Rdirecting to reviewer");
 									RequestDispatcher rd = request.getRequestDispatcher("/review");
 									rd.forward(request, response);
 									return;

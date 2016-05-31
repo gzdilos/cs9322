@@ -9,10 +9,10 @@
 </head>
 <body>
 <div class="row">
-    <div class="col-md-4 col-md-offset-4">
+    <div class="col-md-8 col-md-offset-4">
         <fieldset>
         	<legend>Applicant</legend>
-      				<form class="form-horizontal" role="form" action="listapplicants" method="get">
+      				<form class="form-horizontal" role="form" action="assignments" method="get">
       					<h3>User Profile</h3>
    					<div class="form-group">
 						<label class="col-sm-2 control-label" for="name">Name</label>
@@ -48,7 +48,7 @@
 					<h3>Job Application</h3>
 					
 					<div class="form-group">
-						<label class="col-sm-2 control-label" for="coverletter">Cover Letter}</label>			
+						<label class="col-sm-2 control-label" for="coverletter">Cover Letter</label>			
 						<div class="col-sm-10">
 							${sessionScope.applicant.getJobApplication().coverLetter}	
 						</div>
@@ -72,7 +72,13 @@
 					<c:choose>
       					<c:when test="${sessionScope.applicant.getJobApplication().status == 'submitted'}">
 					<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10">
+						<div class="col-sm-10">
+							<input id ="comments"  size="30" name="comments" value="Enter Comments Here">
+						</div>
+									
+						<br>
+						<br>
+						<div class="col-sm-offset-0 col-sm-5">
 			             	<div class="pull-left">
 			               		<input type="hidden" value="success" name="shortlist">
 			              		<button type="submit" class="btn btn-primary btn-lg btn-block">Shortlist Applicant</button>
@@ -82,12 +88,6 @@
 			              		<button type="submit" class="btn btn-primary btn-lg btn-block">Reject Applicant</button>
 			             	</div>
 			           </div>
-			           <div class="form-group">
-							<label class="col-sm-2 control-label" for="status">Comments</label>			
-							<div class="col-sm-10">
-								<input id ="comments"  size ="30" name="comments" value="Enter Comments Here">
-							</div>
-						</div>
 			        </div>
 			        </c:when>
 			        </c:choose>

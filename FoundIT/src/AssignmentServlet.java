@@ -90,7 +90,7 @@ public class AssignmentServlet extends HttpServlet{
 				while (i != listapp.getSize()) {
 					System.out.println(listapp.getJobApp(i).getId() + listapp.getProfile(i).getId());
 					if (listapp.getJobApp(i).getId().contentEquals(jobid) && listapp.getProfile(i).getId().contentEquals(userid)) {
-						listapp.getJobApp(i).setStatus(JobApplication.STATUS_SHORTLISTED);
+						listapp.getJobApp(i).setStatus(JobApplication.STATUS_ACCEPTED);
 						//listapp.getJobApp(i).setStatus("Has Pied");
 						System.out.println("Status is now " + listapp.getJobApp(i).getStatus());
 						break;
@@ -104,7 +104,7 @@ public class AssignmentServlet extends HttpServlet{
 				query += "teammemberprofileid="+u.getId();
 				query +="&jobapplicationid="+listapp.getJobApp(i).getId();
 				query +="&comments="+comments;
-				query +="&decision="+listapp.getJobApp(i).getStatus();
+				query +="&decision="+JobApplication.STATUS_ACCEPTED;
 				
 				HttpURLConnection connection = rs.doPost(query, uri, u.getUserType());
 				
@@ -133,7 +133,7 @@ public class AssignmentServlet extends HttpServlet{
 				
 				while (i != listapp.getSize()) {
 					if (listapp.getJobApp(i).getId().contentEquals(jobid) && listapp.getProfile(i).getId().contentEquals(userid)) {
-						listapp.getJobApp(i).setStatus(JobApplication.STATUS_NOT_SHORTLISTED);
+						listapp.getJobApp(i).setStatus(JobApplication.STATUS_REJECTED);
 						//listapp.getJobApp(i).setStatus("Has not Pied");
 						break;
 					}
@@ -146,7 +146,7 @@ public class AssignmentServlet extends HttpServlet{
 				query += "teammemberprofileid="+u.getId();
 				query +="&jobapplicationid="+listapp.getJobApp(i).getId();
 				query +="&comments="+comments;
-				query +="&decision="+JobApplication.STATUS_NOT_SHORTLISTED;
+				query +="&decision="+JobApplication.STATUS_REJECTED;
 				
 				HttpURLConnection connection = rs.doPost(query, uri, u.getUserType());
 				
